@@ -1,0 +1,22 @@
+<div class="border-gray-500 border-[1px] flex rounded imgRadio flex-wrap mb-2 items-center">
+  {% for resource in resources %}
+  <label for="{{widget.name}}_{{resource.pk}}">
+    <input
+      type="radio"
+      name="{{widget.name}}"
+      value="{{resource.pk}}"
+      {% if widget.attrs.required %}required=""
+      {% endif %}
+      {% if resource.pk == selected %}checked="true"
+      {% endif %}
+      id="{{widget.name}}_{{resource.pk}}"
+      class="absolute w-0 h-0 opacity-0"
+    />
+    <img
+      src="{{resource.file.url}}"
+      class="w-12 inline-block cursor-pointer p-1 m-1 rounded imgLabel"
+      alt="{{resource.name}}"
+    />
+  </label>
+  {% endfor %}
+</div>

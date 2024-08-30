@@ -1,0 +1,14 @@
+{% extends "main/pubReqs.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:pub_req_details" pk=pub_req.id %}" class="navBtn">{{ pub_req }}</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Publication request details" %}
+<a href="{% url "main:army_details" pk=pub_req.source_army.id %}" class="btn">Show source army</a>
+<form action="{% url "main:pub_req_accept" pk=pub_req.id %}" method="post" class="frm">
+  {% csrf_token %}
+  <input type="submit" value="Accept publication request" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

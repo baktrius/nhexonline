@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+  display: none !important;
+}
+
+@layer components {
+  .btn {
+    @apply text-center inline-block px-2 py-1 my-1 rounded-sm bg-gray-300 hover:bg-gray-400 w-full;
+  }
+
+  .frm input[type="text"],
+  .frm input[type="number"],
+  .frm input[type="password"],
+  .frm select,
+  .inp {
+    @apply w-full px-2 py-1 rounded mb-2;
+  }
+
+  .imgRadio input[type="radio"]:focus + .imgLabel {
+    outline: 2px solid #888;
+  }
+
+  .imgRadio input[type="radio"]:checked + .imgLabel {
+    outline: 2px solid #00f;
+  }
+
+  .lnk {
+    @apply text-blue-600 underline;
+  }
+
+  .navBtn {
+    @apply text-gray-200 hover:bg-gray-600 py-1 px-2 rounded-sm inline leading-none font-bold;
+  }
+}
+
+.errorlist li {
+  @apply text-red-600;
+}

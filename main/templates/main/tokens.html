@@ -1,0 +1,52 @@
+{% extends "main/armyDetails.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:tokens" pk=army.pk %}" class="navBtn">Tokens</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Tokens list" %}
+<style>
+  .selection {
+    display: none;
+  }
+</style>
+<ul class="list-disc pl-4">
+  {% for token in tokens %}
+  <li class="p-1" hx-target="this">
+    <span class="min-w-20 inline-block">
+      {{ token.multiplicity }}
+      &times;
+      {{ token.name }}
+      {% if token.kind == "h" %}(HQ){% endif %}
+      {% if token.kind == "m" %}(Marker){% endif %}
+    </span>
+    {% if token.kind == "m" %}
+    {% #circleImg path=token.front_image.file.url class="w-10 inline-block" srcRect=token.get_front_rect %}{% /circleImg %}
+    {% #circleImg path=token.back_image.file.url class="w-10 inline-block" srcRect=token.get_back_rect %}{% /circleImg %}
+    {% else %}
+    {% #hexImg path=token.front_image.file.url class="w-10 inline-block" srcRect=token.get_front_rect %}{% /hexImg %}
+    {% #hexImg path=token.back_image.file.url class="w-10 inline-block" srcRect=token.get_back_rect %}{% /hexImg %}
+    {% endif %}
+    <form
+      action="{% url "main:token_delete" pk=token.pk %}"
+      method="post"
+      class="inline-block"
+      hx-post="{% url "main:token_delete" pk=token.pk %}"
+      hx-swap="delete"
+    >
+      {% csrf_token %}
+      <button type="submit" class="text-red-600 font-black text-2xl">&times;</button>
+    </form>
+    <a href="{% url "main:token_details" pk=token.pk %}" hx-target="unset">edit</a>
+  </li>
+  {% endfor %}
+</ul>
+{% /section %}
+{% #section title="Add token" %}
+<form action="." method="post" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Add token" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

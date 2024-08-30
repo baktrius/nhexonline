@@ -1,0 +1,60 @@
+{% extends "main/tableDetails.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:invitations" pk=table.pk %}" class="navBtn">Invitations</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% for chair in table.chair_set.all %}
+{% #section title=chair %}
+Up to
+{{chair.arity}}
+{% if chair.kind == "p" %}player{% else %}spectator{% endif %}(s).
+<div class="border-gray-300 border-2 p-2 mt-2 rounded">
+  <h3 class="text-lg">Named invitations</h3>
+  <ul>
+    {% for invitation in chair.namedinvitation_set.all %}
+    <li class="flex items-baseline justify-between">
+      <span>
+        for
+        {{invitation.user.username}}
+      </span>
+      <form action="{% url "main:invitation_delete" pk=invitation.pk %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Revoke" class="btn" />
+      </form>
+    </li>
+    {% empty %}
+    <li>No invitations, use forms below to add some.</li>
+    {% endfor %}
+  </ul>
+</div>
+<div class="border-gray-300 border-2 p-2 mt-2 rounded">
+  <h3 class="text-lg">Link invitation</h3>
+  {% if chair.link_invitation %}
+  {% #copyInput %}{{base_uri }}{% url "main:link_invitation" pk=chair.link_invitation %}{% /copyInput %}
+  {% endif %}
+  <form action="{% url "main:manage_link_invitation" pk=chair.pk %}" method="post">
+    {% csrf_token %}
+    {% if chair.link_invitation %}
+    <input type="submit" value="Disable" name="action" class="btn" />
+    {% else %}
+    <input type="submit" value="Enable" name="action" class="btn" />
+    {% endif %}
+  </form>
+</div>
+{% /section %}
+{% endfor %}
+{% #section title="Send named invitation" %}
+{% if table.chair_set.exists %}
+<form action="{% url "main:invitations" pk=table.pk %}" method="POST" class="frm">
+  {% csrf_token %}
+  {{ form.as_p}}
+  <input type="submit" value="Invite" class="btn" />
+</form>
+{% else %}
+No chairs are available. Use
+<a href="{% url "main:chairs" pk=table.pk %}" class="lnk"> chair management page</a> to add some before sending
+invitations.
+{% endif %}
+{% /section %}
+{% endblock content %}

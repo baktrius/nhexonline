@@ -1,0 +1,63 @@
+{% extends "main/armyDetails.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:resources" pk=army.pk %}" class="navBtn">Resources</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Resources" %}
+{{ resources_json_lazy|json_script:"resources-data" }}
+<div
+  x-data="{
+	  resources: jsonData('resources-data').map((el) => Object.assign(el, { selected: false })),
+	  del_url: '{% url 'main:res_bulk_del' pk=pk %}',
+	  setAll(state) {
+	    this.resources.forEach((el) => (el.selected = state));
+	  },
+	  allSelected() {
+	    return this.resources.every((el) => el.selected);
+	  },
+	  getSelected() {
+	    return this.resources.filter((el) => el.selected);
+	  },
+	  async removeRes(els) {
+	    try {
+	      const data = new URLSearchParams(els.map((el) => ['res', el.id]));
+	      new FormData(this.$refs.form).forEach((value, key) => data.append(key, value));
+	      const result = await (await fetch(this.del_url, { body: data, method: 'POST' })).json();
+	      if (result['success']) this.resources = this.resources.filter((el) => !els.includes(el));
+	    } catch (error) {
+	      console.error(error);
+	    }
+	  },
+	}"
+  @add_res.window="resources = resources.concat($event.detail.els)"
+>
+  <div class="flex gap-4 p-2 flex-wrap border-gray-500 border-2 border-dashed rounded">
+    <template x-for="(resource, index) in resources" :key="resource.id">
+      <div class="border-gray-500 border-2 rounded">
+        <div class="p-1 flex justify-between items-center border-b-2 border-gray-500">
+          <input type="checkbox" x-model="resource.selected" :name="`res_${resource.id}`" />
+          <a href="#" class="px-1 leading-3" x-text="resource.name"></a>
+          <a href="#" class="leading-3 hover:text-red-600" @click.prevent="removeRes([resources[index]])">&#x2715;</a>
+        </div>
+        <div class="w-28 h-20 flex items-center justify-center">
+          <img :src="resource.url" alt="invalid path" class="inline-block max-w-28 aspect-1 max-h-20" />
+        </div>
+      </div>
+    </template>
+    <template x-if="resources.length === 0">
+      <div class="text-center text-gray-500">No resources. Use form below to add some.</div>
+    </template>
+  </div>
+  <form x-ref="form">
+    {% csrf_token %}
+  </form>
+  <template x-if="!allSelected()"> {% #button @click="setAll(true)" %}Select all{% /button %} </template>
+  <template x-if="allSelected"> {% #button @click="setAll(false)" %}Unselect all{% /button %} </template>
+  {% #button @click="removeRes(getSelected())" %}Remove selected{% /button %}
+</div>
+{% /section %}
+{% #section title="Add resource" %}
+{% include "main/addResForm.html" %}
+{% /section %}
+{% endblock %}

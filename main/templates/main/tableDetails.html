@@ -1,0 +1,38 @@
+{% extends "main/tables.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:table_details" pk=table.pk %}" class="navBtn">{{table.name}}</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% if not table.owner %}
+{% #section title="Anonymous table info" %}
+This table isn't owned by specific account. Therefore it can be managed by anyone vising current page! Keep the link for
+further reference but protect it from strangers.
+{% #copyInput %}{{base_uri }}{% url "main:table_details" pk=table.pk %}{% /copyInput %}
+{% if user.is_authenticated %}
+<form action="{% url "main:claim_table" pk=table.pk %}" method="post">
+  {% csrf_token %}
+  <input type="submit" class="btn" value="Claim ownership" />
+</form>
+{% endif %}
+{% /section%}
+{% endif %}
+{% #section title="Play" %}
+<form action="{% url "main:play" pk=table.pk %}" method="get" class="frm">
+  <label for="id_nick">Visible nickname:</label>
+  <input type="text" name="nick" placeholder="Enter your nickname" value="{{ nick }}" />
+  <input type="submit" value="Join as owner" class="btn" />
+</form>
+{% /section %}
+{% #section title="Manage" %}
+<a href="{% url "main:chairs" pk=table.pk %}" class="btn">Manage chairs</a>
+<a href="{% url "main:invitations" pk=table.pk %}" class="btn">Manage invitations</a>
+<a
+  href="{% url "main:del_table" pk=table.pk %}"
+  hx-post="{% url "main:del_table" pk=table.pk %}"
+  class="btn bg-red-300"
+  hx-confirm="Are you sure you want to permanently delete this table?"
+  >Delete</a
+>
+{% /section %}
+{% endblock content %}

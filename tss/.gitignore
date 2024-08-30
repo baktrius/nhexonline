@@ -1,0 +1,4 @@
+node_modules/
+dump.rdb
+table_logs.jsonl
+tables/

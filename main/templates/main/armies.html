@@ -1,0 +1,24 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:armies" %}" class="navBtn">Armies</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Armies" %}
+<ul class="list-disc pl-4">
+  {% for army in armies_page %}
+  <li>
+    <a class="lnk" href="{% url "main:army_details" pk=army.id %}">{{army.name}}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% #pagination page=armies_page %}{% /pagination %}
+{% /section %}
+{% #section title="Create Army" %}
+<form action="" method="post" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Create" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

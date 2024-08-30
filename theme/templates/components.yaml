@@ -1,0 +1,10 @@
+components:
+  button: "main/button.html"
+  nav: "navbar.html"
+  navItem: "navItem.html"
+  section: "section.html"
+  modal: "modal.html"
+  hexImg: "main/hex_svg.html"
+  circleImg: "main/circle_svg.html"
+  copyInput: "copyInput.html"
+  pagination: "pagination.html"

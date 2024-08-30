@@ -1,0 +1,126 @@
+body {
+  margin: 0px;
+  background-color: #dddddd;
+  display: flex;
+  flex-direction: column;
+}
+#header {
+  color: yellowgreen;
+  background-color: black;
+  border-bottom: solid gray 3px;
+  padding: 10px;
+}
+#headerContent {
+  margin: auto;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+#title {
+  font-size: x-large;
+  font-weight: bold;
+  text-decoration: unset;
+  color: unset;
+}
+#title:visited {
+  color: unset;
+}
+.error {
+  color: red;
+}
+#usernameBox {
+  margin-top: 6px;
+}
+#usernameBox #loginFormSymbol {
+  display: inline-block;
+  transition: transform 0.1s;
+}
+#usernameBox #loginFormSymbol .rotator {
+  transition: transform 0.4s;
+  transform-origin: 50% 50%;
+}
+#loginFormSymbol[data-showed="true"] .rotator {
+  transform: rotate(-180deg);
+}
+#usernameBox:hover #loginFormSymbol {
+  transform: scale(1.75);
+}
+#loginErrorInfo {
+  color: red;
+}
+#center {
+  margin: auto;
+  max-width: 800px;
+  width: 100%;
+  padding: 7px;
+}
+#warning {
+  display: none;
+  color: red;
+}
+#username {
+  padding: 4px;
+  box-sizing: border-box;
+  width: 150px;
+}
+#tables {
+  width: 100%;
+  border-collapse: collapse;
+}
+#tables th,
+#tables td {
+  padding: 3px 10px 3px 10px;
+  text-align: center;
+}
+/*#tables tr:not(:first-child):hover {
+    background-color:lavender;
+}*/
+.box {
+  background-color: white;
+  border-radius: 4px;
+  padding: 5px 10px 5px 10px;
+}
+
+.modernform input,
+.modernform select,
+.modernform button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 4px;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+.modernform input[type="submit"] {
+  margin-top: 16px;
+}
+.modernform {
+  padding-top: 9px;
+}
+
+.modernform p {
+  text-align: justify;
+}
+
+.players span:not(:last-child)::after {
+  content: ", ";
+}
+
+#loginForm {
+  width: 200px;
+  box-sizing: border-box;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+#noTables td {
+  color: gray;
+}

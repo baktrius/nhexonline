@@ -1,0 +1,36 @@
+<nav class="p-2 w-full border-b-2 border-gray-400 bg-black pt-1">
+  <div class="flex items-baseline justify-between flex-wrap m-auto">
+    <!--Logo etc-->
+    <div class="flex items-baseline flex-shrink-0 text-green-500 mr-4 font-bold">
+      <a class="no-underline hover:no-underline hover:bg-gray-600 px-2 rounded-sm" href="{% url "main:index" %}">
+        <span class="text-2xl">NHex</span>
+      </a>
+      {{ children }}
+    </div>
+    <!--Menu-->
+    <ul class="py-0 flex justify-start items-baseline text-gray-200 flex-wrap">
+      {% url "main:armies" as armies_url %}
+      {% #navItem href=armies_url %}Armies{% /navItem %}
+      {% url "main:tables" as tables_url %}
+      {% #navItem href=tables_url %}Tables{% /navItem %}
+      {% if user.is_staff %}
+      {% url "admin:index" as admin_url %}
+      {% #navItem href=admin_url no_boost="True" %}Admin{% /navItem %}
+      {% endif %}
+      <span class="px-2">|</span>
+      {% if user.is_authenticated %}
+      <li>
+        <form action="{% url "users:logout" %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="navBtn">Logout</button>
+        </form>
+      </li>
+      {% else %}
+      {% url "users:login" as login_url %}
+      {% #navItem href=login_url %}Login{% /navItem %}
+      {% url "users:register" as register_url %}
+      {% #navItem href=register_url %}Register{% /navItem %}
+      {% endif %}
+    </ul>
+  </div>
+</nav>

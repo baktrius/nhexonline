@@ -1,0 +1,41 @@
+{% extends "main/armies.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:army_details" pk=army.pk %}" class="navBtn">{{army.name}}</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Details" %}
+<form action="{% url "main:army_details" pk=army.pk %}" method="post" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Apply changes" class="btn" />
+</form>
+{% /section %}
+{% #section title="Manage" %}
+<a href="{% url "main:army_info" pk=army.pk %}" class="btn" hx-boost="false">Preview info</a>
+<a href="{% url "main:tokens" pk=army.pk %}" class="btn">Manage tokens</a>
+<a href="{% url "main:resources" pk=army.pk %}" class="btn">Manage resources</a>
+<form
+  action="{% url "main:army_delete" pk=army.pk %}"
+  method="post"
+  hx-confirm="Are you sure you want to permanently remove this army? All its resources will be irreversibly lost. Moreover tables using this army will contain invalid tokens."
+>
+  {% csrf_token %}
+  <input type="submit" value="Delete army" class="btn bg-red-300" />
+</form>
+<form action="{% url "main:army_clone" pk=army.pk %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="Clone army" class="btn" />
+</form>
+{% /section %}
+{% #section title="Publication requests" %}
+<ul class="pl-4">
+  {% for pub_req in pub_reqs %}
+  <li class="list-disc">
+    <a href="{% url "main:pub_req_details" pk=pub_req.id %}">{{ pub_req }}</a>
+  </li>
+  {% endfor %}
+</ul>
+<a href="{% url "main:create_pub_req" pk=army.pk %}" class="btn">Create publication request</a>
+{% /section %}
+{% endblock content %}

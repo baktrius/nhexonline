@@ -1,0 +1,20 @@
+{% for res in add_res %}
+<div hx-swap-oob="beforeend:#resources">
+  {% include "main/resource.html" with resource=res %}
+</div>
+{% endfor %}
+<form
+  action=""
+  method="post"
+  enctype="multipart/form-data"
+  class="frm"
+  hx-encoding="multipart/form-data"
+  hx-post=""
+  x-data="{ progress: 0 }"
+  @htmx:xhr:progress="progress = ($event.detail.loaded / $event.detail.total) * 100"
+>
+  {% csrf_token %}
+  {{form}}
+  <input type="submit" value="Upload" class="btn" />
+  <progress x-model="progress" value="0" max="100" class="w-full"></progress>
+</form>

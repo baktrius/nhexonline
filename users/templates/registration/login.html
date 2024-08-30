@@ -1,0 +1,32 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/ Login
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Login form" %}
+{% if form.errors %}
+<p class="text-red-600">Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+{% if user.is_authenticated %}
+<p class="text-red-600">
+  Your account doesn't have access to this page. To proceed, please login with an account that has access.
+</p>
+{% else %}
+<p class="text-red-600">Please login to see this page.</p>
+{% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'users:login' %}" class="frm">
+  {% csrf_token %}
+  {{ form.username.label_tag }}
+  {{ form.username }}
+  {{ form.password.label_tag }}
+  {{ form.password }}
+
+  <input type="submit" value="login" class="btn" />
+  <input type="hidden" name="next" value="{{ next }}" />
+</form>
+{% /section %}
+{% endblock %}

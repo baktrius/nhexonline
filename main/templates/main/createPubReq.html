@@ -1,0 +1,14 @@
+{% extends "main/armyDetails.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{{ request.build_absolute_uri }}" class="navBtn">Publication request</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Publication request form" %}
+<form action="{% url "main:create_pub_req" pk=army.pk %}" method="post" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Submit publication request" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

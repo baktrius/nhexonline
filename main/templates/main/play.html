@@ -1,0 +1,19 @@
+{% extends "main/tableDetails.html" %}
+{% load static %}
+{% block all %}
+<div hx-boost="false" class="flex flex-col h-dvh">
+  {% #nav user=user csrf_token=csrf_token %}
+  <div class="text-gray-200">
+    {% block breadcrumbs %}
+    {{ block.super }}/
+    <a href="{% url "main:play" pk=table.pk %}" class="navBtn">Play</a>
+    {% endblock breadcrumbs %}
+  </div>
+  {% /nav %}
+  <div id="content" class="grow">Loading...</div>
+  {{ table.pk | json_script:"tableId" }}
+  {{ roleRequest | json_script:"roleRequest" }}
+  {% load django_vite %}
+  {% vite_asset 'js/play.js' %}
+</div>
+{% endblock all %}

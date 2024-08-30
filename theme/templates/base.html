@@ -1,0 +1,30 @@
+{% load static tailwind_tags django_vite django_htmx %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>NHex</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" type="image/png" href="/static/icon.png" />
+    {% tailwind_css %}
+    {% vite_hmr_client %}
+    {% vite_asset 'js/main.js' %}
+    {% django_htmx_script %}
+  </head>
+
+  <body
+    class="bg-gray-200 font-serif leading-normal tracking-normal"
+    hx-boost="true"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+    {% block all %}
+    {% #nav user=user csrf_token=csrf_token %}
+    <div class="text-gray-200">{% block breadcrumbs %}{% endblock breadcrumbs %}</div>
+    {% /nav %}
+    <div class="flex justify-center flex-row">
+      <div class="max-w-[1000px] grow">{% block content %}{% endblock content %}</div>
+    </div>
+    {% endblock all %}
+  </body>
+</html>

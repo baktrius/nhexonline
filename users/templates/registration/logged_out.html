@@ -1,0 +1,10 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/ Logout
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Logged out" %}
+<p>You have been successfully logged out.</p>
+<p><a href="{% url "users:login" %}" class="lnk">Log in again</a></p>
+{% /section %}
+{% endblock %}

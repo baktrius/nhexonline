@@ -1,0 +1,36 @@
+{
+  "name": "nhex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./manage.py test",
+    "test:coverage": "pytest --cov=. --cov-report html --cov-report xml",
+    "dev:vt": "vite",
+    "dev:dj": "PYTHONUNBUFFERED=1 python ./manage.py runserver",
+    "dev:tw": "./manage.py tailwind start",
+    "dev:ts": "MAIN_SERVER_URL=\"http://127.0.0.1:8000\" npx nhex-tss",
+    "dev": "concurrently  -c \"bgYellow.black,bgGreen.black,bgBlue.black,auto\" -k \"npm:dev:*\"",
+    "prod": "vite build",
+    "postinstall": "(pip install -r requirements.txt && ./manage.py tailwind install); (cd table-client && npm install); (cd tss && npm install)"
+  },
+  "keywords": [],
+  "author": "Krzysztof Rogowski",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "madge": "^7.0.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-django-alpine": "^1.2.6",
+    "prettier-plugin-tailwindcss": "^0.5.13",
+    "vite": "^5.2.6"
+  },
+  "dependencies": {
+    "@alpinejs/focus": "^3.13.7",
+    "alpinejs": "^3.13.7",
+    "htmx.org": "^1.9.11",
+    "nhex-table-client": "file:table-client",
+    "nhex-tss": "file:tss",
+    "tippy.js": "^6.3.7"
+  }
+}

@@ -1,0 +1,30 @@
+<div
+  class="border-gray-500 border-2 rounded"
+  hx-target="this"
+  x-data="{ selected: false }"
+  @select:all.window="selected = true"
+  @select:none.window="selected = false"
+>
+  <div class="p-1 flex justify-between items-center">
+    <input type="checkbox" name="res" x-model="selected" value="{{ resource.id }}" />
+    <a
+      href="#"
+      class="px-1 leading-3"
+      hx-get="{% url "main:resModal" pk=resource.id %}"
+      hx-target="body"
+      hx-swap="beforeend"
+      >{{ resource.name }}</a
+    >
+    <a
+      href="{{ resource.close_url }}"
+      hx-swap="delete"
+      hx-post="{{ resource.close_url }}"
+      hx-prompt="Are you sure you want to delete this object?"
+      class="leading-3 hover:text-red-600"
+      >&#x2715;</a
+    >
+  </div>
+  <div class="w-28 h-20 flex items-center justify-center border-t-2 border-gray-500">
+    <img src="{{ resource.file.url }}" alt="invalid path" class="inline-block max-w-28 aspect-1 max-h-20" />
+  </div>
+</div>

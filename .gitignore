@@ -1,0 +1,13 @@
+node_modules
+*.pyc
+media
+/assets/
+db.sqlite3
+_db.sqlite3
+theme/static/css/dist
+tables/
+table_logs.jsonl
+.python-version
+.coverage
+coverage.xml
+static_resources/

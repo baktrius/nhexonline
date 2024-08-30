@@ -1,0 +1,14 @@
+{% extends "main/tokens.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:token_details" pk=token.pk %}" class="navBtn">{{token.name}}</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Token details" %}
+<form action="." method="post" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Save changes" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

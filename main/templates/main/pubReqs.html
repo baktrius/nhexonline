@@ -1,0 +1,16 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:pub_reqs" %}" class="navBtn">Publication requests</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Publication requests" %}
+<ul>
+  {% for pub_req in pub_reqs %}
+  <li>
+    <a href="{% url "main:pub_req_details" pk=pub_req.id %}">{{ pub_req }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% /section %}
+{% endblock content %}

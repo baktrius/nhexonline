@@ -1,0 +1,26 @@
+{
+  "name": "nhex-table-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scripts/Game.js",
+  "type": "module",
+  "scripts": {
+    "client:dev": "esbuild scripts/Game.js --bundle --outfile=out/out.js --format=esm --loader:.eot=file --loader:.ttf=file --loader:.woff2=file --loader:.woff=file --watch",
+    "build:client": "esbuild scripts/Game.js --bundle --outfile=out/out.js --format=esm --loader:.eot=file --loader:.ttf=file --loader:.woff2=file --loader:.woff=file --loader:.png=jpg --sourcemap"
+  },
+  "author": "krzysztor",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "jquery-contextmenu": "^2.9.2",
+    "tippy.js": "^6.3.7"
+  },
+  "devDependencies": {
+    "esbuild": "0.20.2",
+    "eslint": "^7.3.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "madge": "^7.0.0",
+    "prettier": "3.2.5"
+  }
+}

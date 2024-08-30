@@ -1,0 +1,17 @@
+.progress-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.progress-ring__circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  stroke: gray;
+  stroke-width: 2px;
+  fill: transparent;
+  stroke-dasharray: 50.26 50.26;
+  stroke-dashoffset: 50.26;
+}

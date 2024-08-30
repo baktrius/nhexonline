@@ -1,0 +1,15 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/ Registration
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Registration form" %}
+
+<form method="post" action="{% url 'users:register' %}" class="frm">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Register" class="btn" />
+  <a href="{% url 'users:login' %}" class="lnk">Already have account?</a>
+</form>
+{% /section %}
+{% endblock %}

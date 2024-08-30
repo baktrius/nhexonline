@@ -1,0 +1,14 @@
+{% extends "main/index.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{{ request.build_absolute_uri }}" class="navBtn">Link invitation</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title=chair %}
+<form action="{% url "main:link_invitation_play" pk=chair.link_invitation %}" method="get" class="frm">
+  <label for="id_nick">Visible nickname:</label>
+  <input type="text" name="nick" placeholder="Enter your nickname" value="{{ nick }}" />
+  <input type="submit" value="Join" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}

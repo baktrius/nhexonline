@@ -1,0 +1,35 @@
+{% extends "main/tableDetails.html" %}
+{% block breadcrumbs %}
+{{ block.super }}/
+<a href="{% url "main:chairs" pk=table.pk %}" class="navBtn">Chairs</a>
+{% endblock breadcrumbs %}
+{% block content %}
+{% #section title="Chairs" %}
+<ul>
+  {% for chair in table.chair_set.all %}
+  <li class="border-gray-300 border-2 p-2 mt-2 rounded">
+    <h3 class="text-xl">
+      {{ chair.name }}
+      chair
+    </h3>
+    Up to
+    {{chair.arity}}
+    {% if chair.kind == "p" %}player{% else %}spectator{% endif %}(s).
+    <form action="{% url "main:chair_delete" pk=chair.pk %}" method="POST" class="w-full">
+      {% csrf_token %}
+      <input type="submit" value="Delete" class="btn" />
+    </form>
+  </li>
+  {% empty %}
+  <li>No chairs, use form below to add some</li>
+  {% endfor %}
+</ul>
+{% /section %}
+{% #section title="Add chair" %}
+<form action="{% url "main:chairs" pk=table.pk %}" method="POST" class="frm">
+  {% csrf_token %}
+  {{ form.as_p}}
+  <input type="submit" value="Add" class="btn" />
+</form>
+{% /section %}
+{% endblock content %}
