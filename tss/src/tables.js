@@ -1,17 +1,5 @@
 const Table = require("./table.js");
 
-function mapTable(table) {
-  if (table === undefined) return undefined;
-  return {
-    id: table.id,
-    name: table.name,
-    defPlayersNum: table.defaultPlayersNum,
-    players: [...table.players].map((player) => {
-      return { id: player.userData.userId, name: player.userData.userName };
-    }),
-  };
-}
-
 module.exports = class Tables {
   constructor(storage, serviceQuality, mainAgent) {
     this.storage = storage;
@@ -39,7 +27,7 @@ module.exports = class Tables {
     this.tables.set(id, newTable);
     if (this.subscribers.size > 0) {
       const mes = JSON.stringify({
-        addTable: mapTable(newTable),
+        addTable: newTable.getInfo(),
       });
       this.subscribers.forEach((sub) => sub.send(mes));
     }
@@ -65,7 +53,7 @@ module.exports = class Tables {
     ws.on("close", () => this.subscribers.delete(ws));
     ws.send(
       JSON.stringify({
-        tables: [...this.tables.values()].map(mapTable),
+        tables: [...this.tables.values()].map((el) => el.getInfo()),
       }),
     );
   }
@@ -76,7 +64,7 @@ module.exports = class Tables {
         ws.send(JSON.stringify({ table: false }));
         return
       }
-      this.load(table.id, table.name, table.defNumOfPlayers, table.board);
+      this.load(id, table.name, table.defNumOfPlayers, table.board);
     }
     if (!(await this.tables.get(id).addUser(ws, roleRequest))) {
       ws.send(JSON.stringify({ table: false }));

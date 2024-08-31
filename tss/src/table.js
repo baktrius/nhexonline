@@ -994,4 +994,14 @@ module.exports = class Table {
     }
     return false;
   }
+  getInfo() {
+    return {
+      id: this.id,
+      name: this.name,
+      defPlayersNum: this.defaultPlayersNum,
+      players: [...this.players].map((player) => {
+        return { id: player.userData.userId, name: player.userData.userName };
+      }),
+    };
+  }
 };
