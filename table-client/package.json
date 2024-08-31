@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "client:dev": "esbuild scripts/Game.js --bundle --outfile=out/out.js --format=esm --loader:.eot=file --loader:.ttf=file --loader:.woff2=file --loader:.woff=file --watch",
-    "build:client": "esbuild scripts/Game.js --bundle --outfile=out/out.js --format=esm --loader:.eot=file --loader:.ttf=file --loader:.woff2=file --loader:.woff=file --loader:.png=jpg --sourcemap"
+    "build:client": "esbuild scripts/Game.js --bundle --outfile=out/out.js --format=esm --loader:.eot=file --loader:.ttf=file --loader:.woff2=file --loader:.woff=file --loader:.jpg=file --sourcemap"
   },
   "author": "krzysztor",
   "license": "ISC",
