@@ -14,8 +14,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("owner", type=str)
-        parser.add_argument("zip_src", type=str)
+        parser.add_argument(
+            "zip_src", type=str, help="Path to army zip file(s).", nargs="+"
+        )
         parser.add_argument("-n", "--name", type=str, action="store")
+        parser.add_argument("-p", "--public", action="store_true")
+        parser.add_argument("-u", "--utility", action="store_true")
+        parser.add_argument("-o", "--official", action="store_true")
 
     def handle(self, *args, **options):
         User = get_user_model()
@@ -23,7 +28,11 @@ class Command(BaseCommand):
             owner = User.objects.get(username=options["owner"])
         except User.DoesNotExist:
             raise CommandError("User does not exist.")
-        zip_src = Path(options["zip_src"])
+        for zip_src in options["zip_src"]:
+            self.import_army(owner, Path(zip_src), options)
+
+    def import_army(self, owner, zip_src, options):
+        self.stdout.write(f"Importing army from {zip_src}...")
         try:
             with transaction.atomic():
                 temp_dir = Path(tempfile.mkdtemp())
@@ -33,19 +42,21 @@ class Command(BaseCommand):
                     raise CommandError("info.json not found in zip file.")
                 with open(info_path) as f:
                     army_info = json.load(f)
-                if not isinstance(army_info, dict):
-                    raise CommandError("info.json is not a dictionary.")
-                if not army_info.keys() <= {
-                    "name",
-                    "bases",
-                    "tokens",
-                    "defBackImg",
-                    "markers",
-                    "defBackImgRect",
-                }:
-                    raise CommandError(
-                        f"info.json contains invalid keys {list(army_info.keys())}."
-                    )
+                self.check_dict_keys(
+                    army_info,
+                    "info.json",
+                    {
+                        "name",
+                        "bases",
+                        "tokens",
+                        "defBackImg",
+                        "markers",
+                        "defBackImgRect",
+                        "instructionLink",
+                        "tags",
+                    },
+                    {"instructionLink", "tags"},
+                )
                 name = options["name"] or army_info.get("name")
                 if not name:
                     raise CommandError("Army name not found in info.json.")
@@ -67,20 +78,32 @@ class Command(BaseCommand):
                             )
                     return resources[name]
 
-                army = Army.objects.create(name=name, owner=owner)
+                army = Army.objects.create(
+                    name=name,
+                    owner=owner,
+                    private=not options["public"],
+                    utility=options["utility"],
+                    custom=not options["official"],
+                )
 
                 def append_token(kind, info, repeat_front=False):
-                    if not info.keys() <= {
-                        "name",
-                        "img",
-                        "imgRect",
-                        "q",
-                        "backImg",
-                        "backImgRect",
-                    }:
-                        raise CommandError(
-                            f"Token info contains invalid keys {list(info.keys())}."
-                        )
+                    name = info.get("name")
+                    if not name:
+                        raise CommandError("Token info does not specify its name.")
+                    self.check_dict_keys(
+                        info,
+                        f"{name} token",
+                        {
+                            "name",
+                            "img",
+                            "imgRect",
+                            "q",
+                            "backImg",
+                            "backImgRect",
+                            "info",
+                            "secret",
+                        },
+                    )
                     name = info.get("name")
                     img_name = info.get("img")
                     rect = info.get("imgRect")
@@ -91,6 +114,11 @@ class Command(BaseCommand):
                         back_img_name = info.get("backImg") or def_back_img
                         back_img_rect = info.get("backImgRect") or def_back_img_rect
                     quantity = info.get("q")
+                    additional_info = {}
+                    if "info" in info and info.get("info") != "":
+                        additional_info["info"] = info.get("info")
+                    if "secret" in info:
+                        additional_info["secret"] = info.get("secret")
                     if None in [
                         name,
                         img_name,
@@ -110,6 +138,7 @@ class Command(BaseCommand):
                         back_image_rect=back_img_rect,
                         multiplicity=quantity,
                         kind=kind,
+                        additional_info=additional_info or None,
                     )
 
                 for token in army_info.get("tokens", []):
@@ -124,3 +153,18 @@ class Command(BaseCommand):
                 )
         finally:
             shutil.rmtree(temp_dir)
+
+    def check_dict_keys(self, d, name, allowed, ignored=None):
+        if ignored is None:
+            ignored = set()
+        if not isinstance(d, dict):
+            raise CommandError(f"{name} is not a dictionary.")
+        keys = d.keys()
+        if not keys <= allowed:
+            raise CommandError(f"{name} contains invalid keys {list(keys - allowed)}.")
+        if keys & ignored:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{name} contains ignored keys {list(keys & ignored)}."
+                )
+            )
