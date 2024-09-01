@@ -456,7 +456,7 @@ def board_info(request, pk):
 
 @only_GET
 def server_info(request):
-    armies = Army.get_info(request.user)
+    armies = Army.get_user_armies(request.user)
     emotes = [
         el.get_info()
         for el in Emote.objects.prefetch_related("emotealternativeimage_set").all()

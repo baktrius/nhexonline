@@ -108,7 +108,8 @@ class Army(models.Model):
     def __str__(self) -> str:
         return str(self.name)
 
-    def get_info(user=None):
+    @staticmethod
+    def get_user_armies(user=None):
         # get only public armies and user's private armies
         if isinstance(user, AnonymousUser):
             user = None
