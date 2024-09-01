@@ -26,10 +26,7 @@ class ActionError extends Error { }
 module.exports = class Table {
   constructor(
     id,
-    name,
-    defaultPlayersNum,
     quality,
-    boardName,
     dumpFilePath,
     storage,
     onChangeDescription,
@@ -39,7 +36,6 @@ module.exports = class Table {
     this.dumpBuffer = "";
     this.dumpService = undefined;
     this.id = id;
-    this.name = name;
     this.content = [];
     this.history = [];
     this.future = [];
@@ -47,37 +43,38 @@ module.exports = class Table {
     this.owners = new Set();
     this.players = new Set();
     this.subscribers = new Set();
-    this.defaultPlayersNum = defaultPlayersNum;
     this.actualQuality = 0;
     this.setServiceQuality(quality);
-    this.boardName = boardName;
+    this.boardName = undefined;
     this.startRemovalService();
     this.storage = storage;
     this.onChangeDescription = onChangeDescription;
     this.onRemove = onRemove;
     this.secrets = new Map();
     this.mainAgent = mainAgent;
+    this.dumpFilePath = dumpFilePath;
 
-    if (typeof dumpFilePath === "string") {
-      this.dumpFilePath = dumpFilePath;
+  }
+  async load() {
+    if (typeof this.dumpFilePath === "string") {
       this.dumpFileLines = 1;
-      (async () => {
-        let loadingError;
-        if ((loadingError = !(await this.loadFromDumpFile(dumpFilePath)))) {
-          console.log("error occurred during table loading");
-        }
-        this.initDumping(dumpFilePath);
-        if (this.lastLineNotEmpty === true) {
-          this.outStream.write("\n");
-          ++this.dumpFileLines;
-        }
-        if (loadingError) {
-          const prevLine =
-            this.history[this.history.length - 1]?.place.line ?? -1;
-          this.dump(`${JSON.stringify({ prev: { line: prevLine } })}\n`, true);
-        }
-      })();
+      let loadingError;
+      if ((loadingError = !(await this.loadFromDumpFile(this.dumpFilePath)))) {
+        console.log("error occurred during table loading");
+        return false;
+      }
+      this.initDumping(this.dumpFilePath);
+      if (this.lastLineNotEmpty === true) {
+        this.outStream.write("\n");
+        ++this.dumpFileLines;
+      }
+      if (loadingError) {
+        const prevLine =
+          this.history[this.history.length - 1]?.place.line ?? -1;
+        this.dump(`${JSON.stringify({ prev: { line: prevLine } })}\n`, true);
+      }
     }
+    return true;
   }
   async loadFromDumpFile(path, line = -1, lockedFiles = new Set()) {
     if (lockedFiles.has(path)) {
@@ -155,7 +152,7 @@ module.exports = class Table {
           place: "tableLoading",
           err: err,
         });
-        return line === -1 && lockedFiles.size === 1;
+        return false;
       }
     }
   }
@@ -702,6 +699,9 @@ module.exports = class Table {
     });
   }
   execute(data, hist) {
+    if (data.prevent) {
+      return false;
+    }
     if (data.clearTable !== undefined) this.clearTable(hist);
     if (data.setTable !== undefined) this.setTable(hist, data.setTable);
     if (data.updateContent !== undefined)
@@ -726,11 +726,18 @@ module.exports = class Table {
     if (data.secretsInfo !== undefined) {
       data.secretsInfo.forEach((el) => this.secrets.set(el[0], el[1]));
     }
+    if ('board' in data) {
+      this.addHistory(hist, { board: data.board }, { prevent: true });
+      this.boardName = data.board;
+    }
+    return true;
   }
   undo(ws) {
     if (this.history.length > 0) {
       const obj = this.history.pop();
-      this.execute(obj.act, { type: 2, place: obj.place });
+      if (!this.execute(obj.act, { type: 2, place: obj.place })) {
+        this.history.push(obj);
+      }
     }
   }
   redo(ws) {
@@ -878,10 +885,11 @@ module.exports = class Table {
     }
   }
   async addUser(ws, roleRequest) {
-    const authInfo = await this.mainAgent.authorizeRoleRequest(ws, this.id, roleRequest);
-    if (!authInfo.result) {
-      return false;
-    }
+    // const authInfo = await this.mainAgent.authorizeRoleRequest(ws, this.id, roleRequest);
+    // if (!authInfo.result) {
+    //   return false;
+    // }
+    const authInfo = roleRequest;
     if (authInfo.role == "owner") {
       this.addPlayer(ws)
       ws.userData.role = ROLE_OWNER;
@@ -920,8 +928,13 @@ module.exports = class Table {
     ws.userData.tableId = this.id;
     const prev = ws.onMessage;
     ws.onMessage = async (ws, data) => {
-      prev(ws, data);
-      this.handleMessage(data, ws);
+      try {
+        prev(ws, data);
+        this.handleMessage(data, ws);
+      }
+      catch (err) {
+        console.log(err);
+      }
     };
     ws.on("close", () => this.removeUser(ws));
     return true;
@@ -998,8 +1011,6 @@ module.exports = class Table {
   getInfo() {
     return {
       id: this.id,
-      name: this.name,
-      defPlayersNum: this.defaultPlayersNum,
       players: [...this.players].map((player) => {
         return { id: player.userData.userId, name: player.userData.userName };
       }),

@@ -1,4 +1,5 @@
 const Table = require("./table.js");
+const fs = require("fs").promises;
 
 module.exports = class Tables {
   constructor(storage, serviceQuality, mainAgent) {
@@ -8,14 +9,11 @@ module.exports = class Tables {
     this.tables = new Map();
     this.subscribers = new Set();
   }
-  load(id, name, defPlayersNum = 2, boardName) {
+  async load(id) {
     const newTable = new Table(
       id,
-      name,
-      defPlayersNum,
       this.serviceQuality,
-      boardName,
-      `tables/${id}`,
+      this.getTablePath(id),
       this.storage,
       (change) => {
         const mes = JSON.stringify(change);
@@ -24,6 +22,9 @@ module.exports = class Tables {
       this.unload.bind(this),
       this.mainAgent,
     );
+    if (!await newTable.load()) {
+      return false;
+    }
     this.tables.set(id, newTable);
     if (this.subscribers.size > 0) {
       const mes = JSON.stringify({
@@ -31,6 +32,7 @@ module.exports = class Tables {
       });
       this.subscribers.forEach((sub) => sub.send(mes));
     }
+    return true;
   }
   unload(table) {
     this.tables.delete(table.id);
@@ -59,12 +61,10 @@ module.exports = class Tables {
   }
   async subscribeTable(ws, id, roleRequest) {
     if (!this.tables.has(id)) {
-      const table = await this.mainAgent.getTableById(id);
-      if (!table) {
+      if (!(await this.load(id))) {
         ws.send(JSON.stringify({ table: false }));
         return
       }
-      this.load(id, table.name, table.defNumOfPlayers, table.board);
     }
     if (!(await this.tables.get(id).addUser(ws, roleRequest))) {
       ws.send(JSON.stringify({ table: false }));
@@ -81,5 +81,36 @@ module.exports = class Tables {
       (acc, el) => (acc += el.players.size),
       0,
     );
+  }
+  async getFreshId() {
+    const { nanoid } = await import("nanoid");
+    for (; ;) {
+      const id = nanoid(12);
+      try {
+        await fs.access(this.getTablePath(id));
+        // If no error, file exists, try another id
+      } catch (error) {
+        // Id is unique
+        return id;
+      }
+    }
+  }
+  async createTable(boardName) {
+    try {
+      const id = await this.getFreshId();
+      const tablePath = this.getTablePath(id);
+      const file = await fs.open(tablePath, "wx");
+      if (boardName !== undefined) {
+        await file.write(JSON.stringify({ act: { board: boardName } }) + '\n');
+      }
+      await file.close();
+      return id;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
+  getTablePath(id) {
+    return `tables/${id}`;
   }
 };

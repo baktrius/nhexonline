@@ -8,6 +8,7 @@ const config = require("./src/config.js");
 const Tables = require("./src/tables.js");
 const MainAgent = require("./src/mainAgent.js");
 const url = require("url");
+var cors = require('cors')
 
 const app = express();
 app.set("trust proxy", 1);
@@ -18,6 +19,7 @@ const port = 3001;
 
 let serviceQuality = config.QUALITY_LEVELS_NUM;
 const MAIN_SERVER_URL = process.env.MAIN_SERVER_URL || "http://localhost:3000";
+const SERVE_STATIC = process.env.SERVE_STATIC || false;
 
 let storage;
 try {
@@ -299,6 +301,17 @@ function runStatsService() {
       }
     }, config.STATS_SERVICE_INTERVAL);
   }
+}
+
+app.use(cors())
+app.use(express.urlencoded({ extended: true }));
+app.post("/tables/", async (req, res) => {
+  const board = req.body?.board;
+  const tableId = await tablesList.createTable(board);
+  res.send({ tableId });
+});
+if (SERVE_STATIC) {
+  app.use(express.static(SERVE_STATIC));
 }
 
 // start our server
