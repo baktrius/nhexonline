@@ -11,6 +11,7 @@ from django.views.generic import CreateView, UpdateView
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
+import requests
 
 from .models import (
     Board,
@@ -128,18 +129,26 @@ def tables(request):
     if request.method == "POST":
         form.instance.owner = user
         if form.is_valid():
-            table = form.save()
-            players_num = default(form.cleaned_data.get("add_chair_for_players"), 0)
-            if players_num > 0:
-                table.chair_set.create(name="Players", arity=players_num, kind="p")
-            spectators_num = default(
-                form.cleaned_data.get("add_chair_for_spectators"), 0
-            )
-            if spectators_num > 0:
-                table.chair_set.create(
-                    name="Spectators", arity=spectators_num, kind="s"
+            tableId = requests.post(
+                "http://localhost:3001/tables/", data={"board": form.instance.board.id}
+            ).json()["tableId"]
+            print(tableId)
+            if tableId:
+                form.instance.id = tableId
+                table = form.save()
+                players_num = default(form.cleaned_data.get("add_chair_for_players"), 0)
+                if players_num > 0:
+                    table.chair_set.create(name="Players", arity=players_num, kind="p")
+                spectators_num = default(
+                    form.cleaned_data.get("add_chair_for_spectators"), 0
                 )
-            return redirect_with_obj("main:table_details", table)
+                if spectators_num > 0:
+                    table.chair_set.create(
+                        name="Spectators", arity=spectators_num, kind="s"
+                    )
+                return redirect_with_obj("main:table_details", table)
+            else:
+                form.add_error(None, "Failed to create table")
     paginator = Paginator(tables, 20)
     page_number = request.GET.get("page")
     tables_page = paginator.get_page(page_number)
