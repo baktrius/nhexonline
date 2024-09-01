@@ -140,7 +140,7 @@ module.exports = class Table {
       for (let i = 0; i < tableEntries.length; ++i) {
         const el = tableEntries[tableEntries.length - 1 - i];
         try {
-          await this.execute(el.act, { type: 3, place: el.place });
+          this.execute(el.act, { type: 3, place: el.place });
         } catch (err) {
           console.log(err);
           console.log(JSON.stringify(el));
@@ -329,8 +329,8 @@ module.exports = class Table {
     }
     return data.flatMap((el) => Array(el.q).fill(mapper(el)));
   }
-  async _addArmy(options, hist, method) {
-    const info = await this.mainAgent.getArmy(options.name);
+  _addArmy(options, hist, method, data) {
+    const info = data;
 
     if (info.defBackImg === undefined) {
       info.defBackImg = "b.jpg";
@@ -405,10 +405,11 @@ module.exports = class Table {
       { delObjs: addInfo.map((el) => el.id) },
     );
   }
-  async addArmySpawner(hist, options) {
-    await this._addArmy(options, hist, (tokens, addInfo) => {
+  addArmySpawner(hist, options) {
+    this.sendAll({ check: { getArmySpawner: options } });
+    this._addArmy(options, hist, (tokens, addInfo) => {
       this.addSpawner(tokens, options.left, options.top - 100, addInfo);
-    });
+    }, options.data);
   }
   addUtil(hist, data) {
     const addInfo = [];
@@ -700,14 +701,14 @@ module.exports = class Table {
       }
     });
   }
-  async execute(data, hist) {
+  execute(data, hist) {
     if (data.clearTable !== undefined) this.clearTable(hist);
     if (data.setTable !== undefined) this.setTable(hist, data.setTable);
     if (data.updateContent !== undefined)
       this.updateContent(hist, data.updateContent);
     if (data.move !== undefined) this.updateContent(hist, data.move, true);
     if (data.getArmySpawner !== undefined)
-      await this.addArmySpawner(hist, data.getArmySpawner);
+      this.addArmySpawner(hist, data.getArmySpawner);
     if (data.nextToken !== undefined) this.nextToken(hist, data.nextToken);
     if (data.getUtil !== undefined) this.addUtil(hist, data.getUtil);
     if (data.delObjs !== undefined) this.delObjs(hist, data.delObjs);
@@ -726,16 +727,16 @@ module.exports = class Table {
       data.secretsInfo.forEach((el) => this.secrets.set(el[0], el[1]));
     }
   }
-  async undo(ws) {
+  undo(ws) {
     if (this.history.length > 0) {
       const obj = this.history.pop();
-      await this.execute(obj.act, { type: 2, place: obj.place });
+      this.execute(obj.act, { type: 2, place: obj.place });
     }
   }
-  async redo(ws) {
+  redo(ws) {
     if (this.future.length > 0) {
       const obj = this.future.pop();
-      await this.execute(obj.act, { type: 1, place: obj.place });
+      this.execute(obj.act, { type: 1, place: obj.place });
     }
   }
   chat(mes, user) {
@@ -817,7 +818,7 @@ module.exports = class Table {
       this.sendAll({ revealObjs: ids });
     }
   }
-  async handleMessage(data, ws) {
+  handleMessage(data, ws) {
     try {
       if (this.owners.has(ws)) {
         if (data.promoteUser !== undefined) this.promoteUser(data.promoteUser);
@@ -825,7 +826,7 @@ module.exports = class Table {
         if (data.getLabel !== undefined) this.getLabel(ws);
       }
       if (this.players.has(ws)) {
-        await this.execute(data, {
+        this.execute(data, {
           type: 0,
           place: { line: this.dumpFileLines - 1 },
         });
@@ -861,8 +862,8 @@ module.exports = class Table {
             emote: Object.assign({}, data.emote, { randomness })
           });
         }
-        if (data.undo !== undefined) await this.undo(ws);
-        if (data.redo !== undefined) await this.redo(ws);
+        if (data.undo !== undefined) this.undo(ws);
+        if (data.redo !== undefined) this.redo(ws);
         if (data.updateStatus !== undefined) {
           this.updateStatus(data.updateStatus, ws);
         }
@@ -920,7 +921,7 @@ module.exports = class Table {
     const prev = ws.onMessage;
     ws.onMessage = async (ws, data) => {
       prev(ws, data);
-      await this.handleMessage(data, ws);
+      this.handleMessage(data, ws);
     };
     ws.on("close", () => this.removeUser(ws));
     return true;

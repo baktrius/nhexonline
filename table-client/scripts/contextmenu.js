@@ -64,9 +64,9 @@ function globalMenuCallback(key, options, menuPos, game) {
     const pos = game.transformable.toPos(menuPos);
     const tokens = key.split("-");
     if (tokens[0] == "getArmy")
-      game.server.requestArmySpawner(tokens[1], pos.left, pos.top);
+      game.server.requestArmySpawner(tokens[1], pos.left, pos.top, game);
     else if (tokens[0] == "getRandomArmy")
-      game.server.requestArmySpawner(game.randomArmy(), pos.left, pos.top);
+      game.server.requestArmySpawner(game.randomArmy(), pos.left, pos.top, game);
     else if (tokens[0] == "open") {
       openInNewTab(game.serverInfo.res.links[parseInt(tokens[1])].url);
     }

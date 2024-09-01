@@ -125,11 +125,11 @@ function addWsLogger(ws, req) {
 
 function getConnectionHandler(ws, params) {
   ws.onMessage = handleMessage;
-  return performUnsafe("socket onMessage handler", async (message) => {
+  return performUnsafe("socket onMessage handler", (message) => {
     if (message == "{}") ws.send("{}");
     else {
       const data = JSON.parse(message);
-      if (data) await ws.onMessage(ws, data);
+      if (data) ws.onMessage(ws, data);
     }
   });
 }
