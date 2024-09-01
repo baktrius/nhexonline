@@ -63,9 +63,7 @@ function globalMenuCallback(key, options, menuPos, game) {
   else {
     const pos = game.transformable.toPos(menuPos);
     const tokens = key.split("-");
-    if (tokens[0] == "getArmy")
-      game.server.requestArmySpawner(tokens[1], pos.left, pos.top, game);
-    else if (tokens[0] == "getRandomArmy")
+    if (tokens[0] == "getRandomArmy")
       game.server.requestArmySpawner(game.randomArmy(), pos.left, pos.top, game);
     else if (tokens[0] == "open") {
       openInNewTab(game.serverInfo.res.links[parseInt(tokens[1])].url);
@@ -180,8 +178,18 @@ export default async function initContextMenu(game, armies, rootEl) {
     },
   });
 
+  function getPos() {
+    return game.transformable.toPos({ left: contextMenuX, top: contextMenuY })
+  }
+
   function genArmiesEntries(armies) {
-    return Object.fromEntries(armies.map((army) => ["getArmy-" + army.id, { name: army.name }]))
+    return Object.fromEntries(armies.map((army) => ["getArmy-" + army.id, {
+      name: army.name,
+      callback: () => {
+        const pos = getPos();
+        game.server.requestArmySpawner(army.id, pos.left, pos.top, game);
+      }
+    }]))
   }
 
   function subArmiesMenu(armies, key, name) {
@@ -210,7 +218,7 @@ export default async function initContextMenu(game, armies, rootEl) {
         return [`getUtility-${armyInfo.id}-${unit.id}`, {
           name: unit.name,
           callback: (itemKey, opt) => {
-            const pos = game.transformable.toPos({ left: contextMenuX, top: contextMenuY });
+            const pos = getPos();
             const obj = {
               left: pos.left,
               top: pos.top,
@@ -252,7 +260,7 @@ export default async function initContextMenu(game, armies, rootEl) {
         game.serverInfo.res.emotes.forEach((emote) => {
           res["getEmote-" + emote.id] = {
             name: `${emote.name} (${emote.keyshortcut})`, callback: () => {
-              const pos = game.transformable.toPos({ left: contextMenuX, top: contextMenuY });
+              const pos = getPos();
               game.server.requestEmote(emote, pos.left, pos.top);
             }
           };
