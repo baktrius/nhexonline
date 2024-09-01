@@ -20,7 +20,7 @@ urlpatterns = [
     path("chairs/<slug:pk>/delete/", views.chair_delete, name="chair_delete"),
     path("armies/", views.armies, name="armies"),
     path("armies/<slug:pk>/", views.army_details, name="army_details"),
-    path("army/<slug:pk>/info/", views.army_info, name="army_info"),
+    path("armies/<slug:pk>/info/", views.army_info, name="army_info"),
     path("armies/<slug:pk>/delete/", views.army_delete, name="army_delete"),
     path("armies/<slug:pk>/clone/", views.army_clone, name="army_clone"),
     path(

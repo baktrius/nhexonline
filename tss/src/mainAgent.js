@@ -15,7 +15,7 @@ module.exports = class MainServer {
     }
   }
   async getArmy(id) {
-    return (await axios.get(`${this.url}/army/${id}/info/`)).data;
+    return (await axios.get(`${this.url}/armies/${id}/info/`)).data;
   }
   async authorizeRoleRequest(ws, tableId, roleRequest) {
     try {

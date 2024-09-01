@@ -693,7 +693,7 @@ class TokensTest(TestCase):
     def test_tokens_are_listed_in_army_info(self):
         self.client.login(username="owner", password="owner")
         token = self.get_test_token()
-        response = self.client.get(f"/army/{self.army.pk}/info/")
+        response = self.client.get(f"/armies/{self.army.pk}/info/")
         responseJson = response.json()
         self.assertEqual(1, len(responseJson["tokens"]))
         self.assertEqual(token.name, responseJson["tokens"][0]["name"])

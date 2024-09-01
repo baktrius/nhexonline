@@ -18,7 +18,7 @@ async function fetchResource(resource) {
 }
 mount(document.getElementById('content'), tableId, {
     getServerInfo: () => fetchResource('/serverInfo/'),
-    getArmyInfo: (armyId) => fetchResource(`army/${armyId}/info/`),
+    getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info/`),
     getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info/`),
     getBoardImg: (_, img) => img,
     // getEmoteImg: (emote) => emote.image,
