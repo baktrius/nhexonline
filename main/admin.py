@@ -1,10 +1,14 @@
-from main import models
+from django.db import models as django_models
 from django.contrib import admin
+from django.forms.widgets import Textarea
 from . import models
 
 
 class TokenInline(admin.TabularInline):
     model = models.Token
+    formfield_overrides = {
+        django_models.JSONField: {"widget": Textarea(attrs={"rows": 2, "cols": 40})},
+    }
 
 
 class ArmyAdmin(admin.ModelAdmin):
