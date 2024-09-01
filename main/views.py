@@ -340,21 +340,6 @@ def tokenDetails(request, token):
     return render(request, "main/token_details.html", context)
 
 
-def get_token_data(token):
-    res = {
-        "name": token["name"],
-        "q": token["multiplicity"],
-        "img": token["front_image__file"],
-        "backImg": token["back_image__file"],
-        "id": token["pk"],
-    }
-    if token["front_image_rect"]:
-        res["imgRect"] = token["front_image_rect"]
-    if token["back_image_rect"]:
-        res["backImgRect"] = token["back_image_rect"]
-    return res
-
-
 # TODO reconsider access control
 @only_GET
 def army_info(request: HttpRequest, pk: str) -> HttpResponse:
@@ -363,24 +348,14 @@ def army_info(request: HttpRequest, pk: str) -> HttpResponse:
     except Army.DoesNotExist:
         return JsonResponse({"error": "Army not found"}, status=HTTPStatus.NOT_FOUND)
     tokens = army.token_set.select_related("front_image", "back_image").all()
-    tokens = tokens.values(
-        "pk",
-        "name",
-        "multiplicity",
-        "front_image__file",
-        "back_image__file",
-        "kind",
-        "front_image_rect",
-        "back_image_rect",
-    )
     hqs, units, markers = [
-        [token for token in tokens if token["kind"] == kind] for kind in ["h", "u", "m"]
+        [token for token in tokens if token.kind == kind] for kind in ["h", "u", "m"]
     ]
     info = {
         "name": army.name,
-        "tokens": list(map(get_token_data, units)),
-        "bases": list(map(get_token_data, hqs)),
-        "markers": list(map(get_token_data, markers)),
+        "tokens": list(map(Token.get_data, units)),
+        "bases": list(map(Token.get_data, hqs)),
+        "markers": list(map(Token.get_data, markers)),
     }
     return JsonResponse(info)
 

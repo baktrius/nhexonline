@@ -239,6 +239,7 @@ class Token(models.Model):
     back_image_rect = models.JSONField(default=None, null=True, blank=True)
     KIND_CHOICES = [("h", "HQ"), ("u", "Unit"), ("m", "Marker")]
     kind = models.CharField(max_length=1, choices=KIND_CHOICES, default="u")
+    additional_info = models.JSONField(default=dict, null=True, blank=True)
 
     def clean(self):
         if hasattr(self, "front_image") and self.army != self.front_image.army:
@@ -269,6 +270,22 @@ class Token(models.Model):
 
     def has_write_permission(self, user):
         return self.army.owner == user or user.is_staff
+
+    def get_data(self):
+        res = {
+            "name": self.name,
+            "q": self.multiplicity,
+            "img": self.front_image.file.name,
+            "backImg": self.back_image.file.name,
+            "id": self.id,
+        }
+        if self.additional_info:
+            res.update(self.additional_info)
+        if self.front_image_rect:
+            res["imgRect"] = self.front_image_rect
+        if self.back_image_rect:
+            res["backImgRect"] = self.back_image_rect
+        return res
 
 
 class UserDiskQuota(models.Model):
