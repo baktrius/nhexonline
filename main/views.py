@@ -470,6 +470,7 @@ def get_server_info(user):
             "emotes": emotes,
             "utilities": [],
             "links": list(Link.objects.values("name", "url")),
+            "boards": list(Board.objects.values("id", "name")),
         },
     }
 
