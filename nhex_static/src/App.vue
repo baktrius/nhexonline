@@ -91,7 +91,7 @@ window.addEventListener("hashchange", () => {
   </div>
   <div v-else-if="!gameId">
     <v-select label="Board" :items="boards" v-model="selectedBoard"></v-select>
-    <v-btn @click="createGame" :disabled="generatingId">
+    <v-btn block @click="createGame" :disabled="generatingId">
       <span v-if="generatingId">Loading...</span>
       <span v-else>Create new game</span>
     </v-btn>
