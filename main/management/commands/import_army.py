@@ -21,6 +21,7 @@ class Command(BaseCommand):
         parser.add_argument("-p", "--public", action="store_true")
         parser.add_argument("-u", "--utility", action="store_true")
         parser.add_argument("-o", "--official", action="store_true")
+        return super().add_arguments(parser)
 
     def handle(self, *args, **options):
         User = get_user_model()

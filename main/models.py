@@ -113,8 +113,7 @@ class Army(models.Model):
         # get only public armies and user's private armies
         if isinstance(user, AnonymousUser):
             user = None
-        armies = Army.objects.filter(private=False) | Army.objects.filter(owner=user)
-        return list(armies.values("id", "name", "custom", "private", "utility"))
+        return Army.objects.filter(private=False) | Army.objects.filter(owner=user)
 
     def delete(self, using=None, keep_parents=False):
         if transaction.get_connection().in_atomic_block:
@@ -169,6 +168,19 @@ class Army(models.Model):
 
     def has_write_permission(self, user):
         return self.owner == user or user.is_staff
+
+    def get_info(self):
+        tokens = self.token_set.select_related("front_image", "back_image").all()
+        hqs, units, markers = [
+            [token for token in tokens if token.kind == kind]
+            for kind in ["h", "u", "m"]
+        ]
+        return {
+            "name": self.name,
+            "tokens": list(map(Token.get_data, units)),
+            "bases": list(map(Token.get_data, hqs)),
+            "markers": list(map(Token.get_data, markers)),
+        }
 
     class Meta:
         verbose_name_plural = "armies"

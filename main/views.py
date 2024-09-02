@@ -356,17 +356,8 @@ def army_info(request: HttpRequest, pk: str) -> HttpResponse:
         army = Army.objects.get(pk=pk)
     except Army.DoesNotExist:
         return JsonResponse({"error": "Army not found"}, status=HTTPStatus.NOT_FOUND)
-    tokens = army.token_set.select_related("front_image", "back_image").all()
-    hqs, units, markers = [
-        [token for token in tokens if token.kind == kind] for kind in ["h", "u", "m"]
-    ]
-    info = {
-        "name": army.name,
-        "tokens": list(map(Token.get_data, units)),
-        "bases": list(map(Token.get_data, hqs)),
-        "markers": list(map(Token.get_data, markers)),
-    }
-    return JsonResponse(info)
+
+    return JsonResponse(army.get_info())
 
 
 def resources_to_json(resources):
@@ -463,14 +454,15 @@ def board_info(request, pk):
     return JsonResponse(board.get_info())
 
 
-@only_GET
-def server_info(request):
-    armies = Army.get_user_armies(request.user)
+def get_server_info(user):
+    armies = list(
+        Army.get_user_armies(user).values("id", "name", "custom", "private", "utility")
+    )
     emotes = [
         el.get_info()
         for el in Emote.objects.prefetch_related("emotealternativeimage_set").all()
     ]
-    info = {
+    return {
         "serverName": "local",
         "serverVersion": "1.0.0",
         "res": {
@@ -480,7 +472,11 @@ def server_info(request):
             "links": list(Link.objects.values("name", "url")),
         },
     }
-    return JsonResponse(info)
+
+
+@only_GET
+def server_info(request):
+    return JsonResponse(get_server_info(request.user))
 
 
 @GET_or_POST
