@@ -16,12 +16,13 @@ async function fetchResource(resource) {
         reportError(`Unable to fetch resource: ${resource}`, error);
     }
 }
-mount(document.getElementById('content'), tableId, {
-    getServerInfo: () => fetchResource('/serverInfo/'),
-    getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info/`),
-    getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info/`),
-    getBoardImg: (_, img) => img,
-    // getEmoteImg: (emote) => emote.image,
-    // getHelp: undefined,
-    getTokenImg: (army, token) => `/media/${token}`,
-}, roleRequest, `${location.protocol == "http:" ? "ws" : "wss"}://${location.hostname}:3001/ws2/`);
+fetchResource('serverInfo').then(serverInfo => {
+    mount(document.getElementById('content'), tableId, {
+        getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info/`),
+        getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info/`),
+        getBoardImg: (_, img) => img,
+        // getEmoteImg: (emote) => emote.image,
+        // getHelp: undefined,
+        getTokenImg: (army, token) => `/media/${token}`,
+    }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
+}).catch(error => reportError('Unable to load server info', error));

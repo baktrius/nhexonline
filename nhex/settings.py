@@ -163,3 +163,7 @@ INTERNAL_IPS = [
 DEBUG_TOOLBAR_CONFIG = {"ROOT_TAG_EXTRA_ATTRS": "hx-preserve"}
 
 LOGIN_REDIRECT_URL = "/"
+
+# Table sync server URL
+TSS_URL = "http://localhost:3001"
+TSS_WS_URL = "ws://localhost:3001"

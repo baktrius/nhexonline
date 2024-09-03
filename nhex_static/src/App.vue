@@ -31,7 +31,7 @@ const generatingId = ref(false);
 async function getNewGameId() {
   return (
     await (
-      await fetch(`${location.protocol}//${location.hostname}:3001/tables/`, {
+      await fetch(`${serverInfo.value.tss_url}/tables/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

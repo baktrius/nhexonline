@@ -23,16 +23,21 @@ if (!gameId) {
     reportError('Game ID not found in URL');
 } else {
     const roleRequest = { role: "player" };
-    import("nhex-table-client").then(({ default: mount }) => {
-        mount(clientRoot, gameId, {
-            getServerInfo: () => fetchResource('serverInfo'),
-            getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info.json`),
-            getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info.json`),
-            getBoardImg: (boardId, img) => `boards/${boardId}/${img}`,
-            // getEmoteImg: (emote) => emote.image,
-            // getHelp: undefined,
-            getTokenImg: (army, token) => `/${token}`,
-        }, roleRequest, `${location.protocol == "http:" ? "ws" : "wss"}://${location.hostname}:3001/ws2/`);
+    const serverInfoPromise = fetchResource('serverInfo');
+    import("nhex-table-client").then(async ({ default: mount }) => {
+        try {
+            const serverInfo = await serverInfoPromise;
+            mount(clientRoot, gameId, {
+                getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info.json`),
+                getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info.json`),
+                getBoardImg: (boardId, img) => img,
+                // getEmoteImg: (emote) => emote.image,
+                // getHelp: undefined,
+                getTokenImg: (army, token) => `/${token}`,
+            }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
+        } catch (error) {
+            reportError('Unable to load server info', error);
+        }
     }).catch(error => reportError('Unable to load game client', error));
 }
 

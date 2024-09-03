@@ -93,7 +93,7 @@ class GameGui {
   }
 }
 
-export default async function mount(el, tableId, resources, roleRequest, tableUrl) {
+export default async function mount(el, tableId, resources, roleRequest, tableUrl, serverInfo) {
   el = $(el);
   el.html(`
 <div id="game">
@@ -105,10 +105,7 @@ export default async function mount(el, tableId, resources, roleRequest, tableUr
   <div class="loader"></div>
 </div>
 </div>`);
-  const serverInfo = await resources.getServerInfo();
-  if (serverInfo) {
-    return (window.game = new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, tableUrl));
-  }
+  return (window.game = new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, tableUrl));
 }
 
 function arraysEq(arr1, arr2) {
