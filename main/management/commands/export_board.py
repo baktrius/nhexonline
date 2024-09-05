@@ -1,41 +1,16 @@
-from django.core.management.base import BaseCommand, CommandError, CommandParser
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
+from typing import override
 from shutil import copy, rmtree
-from os import mkdir
 from main.models import Board
-from django.conf import settings
 from json import dumps
-from pathlib import Path
+from .simple_exporter import SimpleExporter
 
 
-class Command(BaseCommand):
-    def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument(
-            "board",
-            type=str,
-            help="The name of the board to be exported. `*` for all boards.",
-        )
-        parser.add_argument(
-            "path",
-            type=str,
-            help="The path to the directory where the board will be exported.",
-        )
-        return super().add_arguments(parser)
+class Command(SimpleExporter):
+    res_name = "board"
+    model = Board
 
-    def handle(self, *args, **options):
-        board_name = options.get("board")
-        if board_name == "*":
-            boards = Board.objects.all()
-        else:
-            try:
-                boards = Board.objects.filter(name=board_name)
-            except Board.DoesNotExist:
-                raise CommandError("Specified board does not exist.")
-        for board in boards:
-            self.export_board(board, Path(options["path"]))
-
-    def export_board(self, board, path):
+    @override
+    def export(self, board, path, options):
         board_img_path = board.image.path
         exported_board_dir = path / board.id
         if exported_board_dir.exists():
