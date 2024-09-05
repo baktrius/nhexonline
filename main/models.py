@@ -1,5 +1,6 @@
 from functools import partial
 import os
+from os import path
 from shutil import rmtree
 import shutil
 from django.db import models
@@ -288,8 +289,8 @@ class Token(models.Model):
         res = {
             "name": self.name,
             "q": self.multiplicity,
-            "img": self.front_image.file.name,
-            "backImg": self.back_image.file.name,
+            "img": path.basename(self.front_image.file.path),
+            "backImg": path.basename(self.back_image.file.path),
             "id": self.id,
         }
         if self.additional_info:
@@ -357,7 +358,7 @@ class Emote(models.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "image": [self.image.url] + [img.image.url for img in alternative_imgs],
+            "image": [self.image.name] + [img.image.name for img in alternative_imgs],
             "keyshortcut": self.keyshortcut,
         }
 

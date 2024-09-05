@@ -21,8 +21,8 @@ fetchResource('serverInfo').then(serverInfo => {
         getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info/`),
         getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info/`),
         getBoardImg: (_, img) => img,
-        // getEmoteImg: (emote) => emote.image,
+        getEmoteImg: (emote) => `/media/${emote}`,
         // getHelp: undefined,
-        getTokenImg: (army, token) => `/media/${token}`,
+        getTokenImg: (army, token) => `/media/armies/${army}/${token}`,
     }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
 }).catch(error => reportError('Unable to load server info', error));

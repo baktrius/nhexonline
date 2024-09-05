@@ -33,7 +33,7 @@ if (!gameId) {
                 getBoardImg: (boardId, img) => img,
                 // getEmoteImg: (emote) => emote.image,
                 // getHelp: undefined,
-                getTokenImg: (army, token) => `/${token}`,
+                getTokenImg: (army, token) => `/armies/${army}/${token}`,
             }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
         } catch (error) {
             reportError('Unable to load server info', error);
