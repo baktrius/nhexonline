@@ -165,7 +165,7 @@ wss.on("connection", (ws, req) => {
       ws,
       config.PING_TIMEOUT,
       3,
-      performUnsafe(() => storage.logEvent("connectionTimeout", null)),
+      performUnsafe("ws timeout handler", () => storage.logEvent("connectionTimeout", null)),
     );
   }
 });
