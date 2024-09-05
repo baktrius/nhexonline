@@ -34,126 +34,130 @@ class Command(BaseCommand):
 
     def import_army(self, owner, zip_src, options):
         self.stdout.write(f"Importing army from {zip_src}...")
-        try:
-            with transaction.atomic():
-                temp_dir = Path(tempfile.mkdtemp())
+        if zip_src.suffix == ".zip":
+            with tempfile.TemporaryDirectory() as temp_dir:
                 shutil.unpack_archive(zip_src, temp_dir)
-                info_path = temp_dir / "info.json"
-                if not (info_path).exists():
-                    raise CommandError("info.json not found in zip file.")
-                with open(info_path) as f:
-                    army_info = json.load(f)
-                self.check_dict_keys(
-                    army_info,
-                    "info.json",
-                    {
-                        "name",
-                        "bases",
-                        "tokens",
-                        "defBackImg",
-                        "markers",
-                        "defBackImgRect",
-                        "instructionLink",
-                        "tags",
-                    },
-                    {"instructionLink", "tags"},
-                )
-                name = options["name"] or army_info.get("name")
-                if not name:
-                    raise CommandError("Army name not found in info.json.")
-                def_back_img = army_info.get("defBackImg")
-                def_back_img_rect = army_info.get("defBackImgRect")
-                resources = dict()
+                self._import_army(owner, temp_dir, options)
+        elif zip_src.suffix == ".json":
+            self._import_army(owner, zip_src.parent, options)
+        elif zip_src.is_dir():
+            self._import_army(owner, zip_src, options)
+        else:
+            raise CommandError("Unsupported file type.")
 
-                def append_resource(name):
-                    nonlocal resources
-                    if not name in resources:
-                        resource_path = temp_dir / name
-                        if not resource_path.exists():
-                            raise CommandError(
-                                f"Resource {name} not found in zip file."
-                            )
-                        with resource_path.open(mode="rb") as f:
-                            resources[name] = army.resource_set.create(
-                                name=name, file=File(f, name=resource_path.name)
-                            )
-                    return resources[name]
+    def _import_army(self, owner, src_dir, options):
+        info_path = src_dir / "info.json"
+        if not (info_path).exists():
+            raise CommandError("info.json not found in zip file.")
+        with open(info_path) as f:
+            army_info = json.load(f)
+        self.check_dict_keys(
+            army_info,
+            "info.json",
+            {
+                "name",
+                "bases",
+                "tokens",
+                "defBackImg",
+                "markers",
+                "defBackImgRect",
+                "instructionLink",
+                "tags",
+            },
+            {"instructionLink", "tags"},
+        )
+        name = options["name"] or army_info.get("name")
+        if not name:
+            raise CommandError("Army name not found in info.json.")
+        def_back_img = army_info.get("defBackImg")
+        def_back_img_rect = army_info.get("defBackImgRect")
+        resources = dict()
 
-                army = Army.objects.create(
-                    name=name,
-                    owner=owner,
-                    private=not options["public"],
-                    utility=options["utility"],
-                    custom=not options["official"],
-                )
-
-                def append_token(kind, info, repeat_front=False):
-                    name = info.get("name")
-                    if not name:
-                        raise CommandError("Token info does not specify its name.")
-                    self.check_dict_keys(
-                        info,
-                        f"{name} token",
-                        {
-                            "name",
-                            "img",
-                            "imgRect",
-                            "q",
-                            "backImg",
-                            "backImgRect",
-                            "info",
-                            "secret",
-                        },
+        def append_resource(name):
+            nonlocal resources
+            if not name in resources:
+                resource_path = src_dir / name
+                if not resource_path.exists():
+                    raise CommandError(f"Resource {name} not found in zip file.")
+                with resource_path.open(mode="rb") as f:
+                    resources[name] = army.resource_set.create(
+                        name=name, file=File(f, name=resource_path.name)
                     )
-                    name = info.get("name")
-                    img_name = info.get("img")
-                    rect = info.get("imgRect")
-                    if repeat_front:
-                        back_img_name = info.get("backImg") or img_name
-                        back_img_rect = info.get("backImgRect") or rect
-                    else:
-                        back_img_name = info.get("backImg") or def_back_img
-                        back_img_rect = info.get("backImgRect") or def_back_img_rect
-                    quantity = info.get("q")
-                    additional_info = {}
-                    if "info" in info and info.get("info") != "":
-                        additional_info["info"] = info.get("info")
-                    if "secret" in info:
-                        additional_info["secret"] = info.get("secret")
-                    if None in [
-                        name,
-                        img_name,
-                        rect,
-                        back_img_name,
-                        back_img_rect,
-                        quantity,
-                    ]:
-                        raise CommandError("Token info contains missing values.")
-                    img = append_resource(img_name)
-                    back_img = append_resource(back_img_name)
-                    army.token_set.create(
-                        name=name,
-                        front_image=img,
-                        front_image_rect=rect,
-                        back_image=back_img,
-                        back_image_rect=back_img_rect,
-                        multiplicity=quantity,
-                        kind=kind,
-                        additional_info=additional_info or None,
-                    )
+            return resources[name]
 
-                for token in army_info.get("tokens", []):
-                    append_token("u", token)
-                for marker in army_info.get("markers", []):
-                    append_token("m", marker, True)
-                for base in army_info.get("bases", []):
-                    append_token("h", base)
+        def append_token(army, kind, info, repeat_front=False):
+            name = info.get("name")
+            if not name:
+                raise CommandError("Token info does not specify its name.")
+            self.check_dict_keys(
+                info,
+                f"{name} token",
+                {
+                    "name",
+                    "img",
+                    "imgRect",
+                    "q",
+                    "backImg",
+                    "backImgRect",
+                    "info",
+                    "secret",
+                    "id",
+                },
+                {"id"},
+            )
+            name = info.get("name")
+            img_name = info.get("img")
+            rect = info.get("imgRect")
+            if repeat_front:
+                back_img_name = info.get("backImg") or img_name
+                back_img_rect = info.get("backImgRect") or rect
+            else:
+                back_img_name = info.get("backImg") or def_back_img
+                back_img_rect = info.get("backImgRect") or def_back_img_rect
+            quantity = info.get("q")
+            additional_info = {}
+            if "info" in info and info.get("info") != "":
+                additional_info["info"] = info.get("info")
+            if "secret" in info:
+                additional_info["secret"] = info.get("secret")
+            if None in [
+                name,
+                img_name,
+                rect,
+                back_img_name,
+                back_img_rect,
+                quantity,
+            ]:
+                raise CommandError("Token info contains missing values.")
+            img = append_resource(img_name)
+            back_img = append_resource(back_img_name)
+            army.token_set.create(
+                name=name,
+                front_image=img,
+                front_image_rect=rect,
+                back_image=back_img,
+                back_image_rect=back_img_rect,
+                multiplicity=quantity,
+                kind=kind,
+                additional_info=additional_info or None,
+            )
 
-                self.stdout.write(
-                    self.style.SUCCESS(f"Successfully imported army {name}!")
-                )
-        finally:
-            shutil.rmtree(temp_dir)
+        with transaction.atomic():
+            army = Army.objects.create(
+                name=name,
+                owner=owner,
+                private=not options["public"],
+                utility=options["utility"],
+                custom=not options["official"],
+            )
+            for token in army_info.get("tokens", []):
+                append_token(army, "u", token)
+            for marker in army_info.get("markers", []):
+                append_token(army, "m", marker, True)
+            for base in army_info.get("bases", []):
+                append_token(army, "h", base)
+
+            self.stdout.write(self.style.SUCCESS(f"Successfully imported army {name}!"))
 
     def check_dict_keys(self, d, name, allowed, ignored=None):
         if ignored is None:
