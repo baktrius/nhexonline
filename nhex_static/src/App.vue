@@ -56,11 +56,11 @@ const copyInfoText = ref("");
 async function copyURL() {
   try {
     await navigator.clipboard.writeText(gameUrl.value);
+    copyInfoText.value = "Copied!";
   } catch (err) {
-    copyInfoText.value = "Failed to copy!";
-    copyInfo.value = true;
+    console.error(err);
+    copyInfoText.value = "Failed to copy! Try doing it manually.";
   }
-  copyInfoText.value = "Copied!";
   copyInfo.value = true;
 }
 
