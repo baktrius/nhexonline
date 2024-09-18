@@ -2,7 +2,7 @@ from typing import override
 from shutil import copy, rmtree
 from main.models import Emote
 from json import dumps
-from .simple_exporter import SimpleExporter
+from .helpers.simple_exporter import SimpleExporter
 
 
 class Command(SimpleExporter):

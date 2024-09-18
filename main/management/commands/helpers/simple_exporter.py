@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError, CommandParser
-from shutil import copy, rmtree
-from json import dumps
 from pathlib import Path
+from abc import ABC, abstractmethod
 
 
-class SimpleExporter(BaseCommand):
+class SimpleExporter(BaseCommand, ABC):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "name",
@@ -31,5 +30,6 @@ class SimpleExporter(BaseCommand):
         for obj in objects:
             self.export(obj, export_path, options)
 
+    @abstractmethod
     def export(self, obj, path, options):
         pass
