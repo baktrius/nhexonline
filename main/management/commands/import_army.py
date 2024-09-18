@@ -66,7 +66,7 @@ class Command(BaseCommand):
         if zip_src.suffix == ".zip":
             with tempfile.TemporaryDirectory() as temp_dir:
                 shutil.unpack_archive(zip_src, temp_dir)
-                self._import_army(owner, temp_dir, options)
+                self._import_army(owner, Path(temp_dir), options)
         elif zip_src.suffix == ".json":
             self._import_army(owner, zip_src.parent, options)
         elif zip_src.is_dir():
