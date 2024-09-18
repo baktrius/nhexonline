@@ -15,7 +15,7 @@ class Command(SimpleExporter):
         exported_board_dir = path / board.id
         if exported_board_dir.exists():
             rmtree(exported_board_dir)
-        exported_board_dir.mkdir()
+        exported_board_dir.mkdir(parents=True)
         copy(board_img_path, exported_board_dir)
         self.stdout.write(f"Board {board.name} exported to {exported_board_dir}.")
         # Export board info to info.json
