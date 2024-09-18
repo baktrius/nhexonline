@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from main.models import Army
 from main.views import get_server_info
 from json import dumps
 
