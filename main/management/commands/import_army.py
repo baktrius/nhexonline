@@ -10,17 +10,46 @@ from main.models import Army
 
 
 class Command(BaseCommand):
-    help = "Imports army zip file."
+    help = (
+        "Imports army zip file or folder containing info.json. "
+        "Can import many armies at once. In such case all options "
+        "and flags will be applied to each army separately."
+    )
 
     def add_arguments(self, parser):
-        parser.add_argument("owner", type=str)
         parser.add_argument(
-            "zip_src", type=str, help="Path to army zip file(s).", nargs="+"
+            "owner",
+            type=str,
+            help="Username of user which will be set as owner of imported army.",
         )
-        parser.add_argument("-n", "--name", type=str, action="store")
-        parser.add_argument("-p", "--public", action="store_true")
-        parser.add_argument("-u", "--utility", action="store_true")
-        parser.add_argument("-o", "--official", action="store_true")
+        parser.add_argument(
+            "zip_src",
+            type=str,
+            help="Path to army zip file(s) or folder(s) containing info.json.",
+            nargs="+",
+        )
+        parser.add_argument(
+            "-n",
+            "--name",
+            type=str,
+            action="store",
+            help="New name for imported army which will overwrite name specified in info.json.",
+        )
+        parser.add_argument(
+            "-p", "--public", action="store_true", help="Makes imported army public."
+        )
+        parser.add_argument(
+            "-u",
+            "--utility",
+            action="store_true",
+            help="Marks imported army as utility army meaning its tokens will be added to get utility menu.",
+        )
+        parser.add_argument(
+            "-o",
+            "--official",
+            action="store_true",
+            help="Marks imported army as official.",
+        )
         return super().add_arguments(parser)
 
     def handle(self, *args, **options):
