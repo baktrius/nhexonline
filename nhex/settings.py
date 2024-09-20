@@ -164,6 +164,8 @@ DEBUG_TOOLBAR_CONFIG = {"ROOT_TAG_EXTRA_ATTRS": "hx-preserve"}
 
 LOGIN_REDIRECT_URL = "/"
 
-# Table sync server URL
+# Table sync server URL from main's server perspective
+INTERNAL_TSS_URL = "http://localhost:3001"
+# Table sync server URL from users perspective
 TSS_URL = "http://localhost:3001"
 TSS_WS_URL = "ws://localhost:3001"

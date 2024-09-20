@@ -130,7 +130,8 @@ def tables(request):
         form.instance.owner = user
         if form.is_valid():
             tableId = requests.post(
-                settings.TSS_URL + "/tables/", data={"board": form.instance.board.id}
+                settings.INTERNAL_TSS_URL + "/tables/",
+                data={"board": form.instance.board.id},
             ).json()["tableId"]
             print(tableId)
             if tableId:
