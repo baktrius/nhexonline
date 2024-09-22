@@ -126,7 +126,6 @@ class Game {
     this.boards = [];
     this.tableId = tableId;
     this.serverInfo = serverInfo;
-    const thisObj = this;
     this.usersSet = new Map();
     this.yourId = -1;
     this.yourRole = -1;
@@ -150,13 +149,13 @@ class Game {
     this.ws = new ReconnectingWS(
       tableUrl,
       {
-        onopen: function (event) {
-          thisObj.lastTime = new Date().getTime();
-          thisObj.initServerAgent();
-          initContextMenu(thisObj, thisObj.serverInfo.res.armies, thisObj.rootEl);
+        onopen: (event) => {
+          this.lastTime = new Date().getTime();
+          this.initServerAgent();
+          initContextMenu(this, this.serverInfo.res.armies, this.rootEl);
         },
         onreconnect: () => {
-          thisObj.objs.forEach((obj) => {
+          this.objs.forEach((obj) => {
             if (obj !== undefined) obj.remove();
           });
           this.removeNotificationsByTag("roleInfo");
@@ -166,20 +165,20 @@ class Game {
             RECONNECT_NOTIFICATION_TIMEOUT,
             ["connectionStatus"],
           );
-          thisObj.lastTime = new Date().getTime();
-          thisObj.initServerAgent();
+          this.lastTime = new Date().getTime();
+          this.initServerAgent();
         },
-        onmessage: async function (event) {
-          thisObj.lastTime = new Date().getTime();
+        onmessage: async (event) => {
+          this.lastTime = new Date().getTime();
           const data = JSON.parse(event.data);
           if (data) {
             if (data.yourId !== undefined) {
-              thisObj.yourId = data.yourId;
-              thisObj.initInfoEl();
+              this.yourId = data.yourId;
+              this.initInfoEl();
             }
             if (data?.table === false) {
-              thisObj.removeAllNotifications();
-              thisObj.warn(
+              this.removeAllNotifications();
+              this.warn(
                 "Table seems to not exists.",
                 -1,
                 ["tableError"],
@@ -187,69 +186,69 @@ class Game {
               );
             }
             if (data.authorizationError !== undefined)
-              thisObj.authorizationError(data.authorizationError);
-            if (data.account !== undefined) thisObj.setAccount(data.account);
+              this.authorizationError(data.authorizationError);
+            if (data.account !== undefined) this.setAccount(data.account);
             if (data.tableInfo !== undefined)
-              await thisObj.tableInfo(data.tableInfo);
+              await this.tableInfo(data.tableInfo);
             if (data.qualityInfo !== undefined)
-              thisObj.adjustQuality(data.qualityInfo);
+              this.adjustQuality(data.qualityInfo);
             if (data.nextToken !== undefined)
-              await thisObj.nextToken(data.nextToken);
+              await this.nextToken(data.nextToken);
             if (data.populateSpawner !== undefined)
-              thisObj.populateSpawner(data.populateSpawner);
+              this.populateSpawner(data.populateSpawner);
             if (data.depopulateSpawner !== undefined)
-              await thisObj.depopulateSpawner(data.depopulateSpawner);
-            if (data.addUsers !== undefined) thisObj.addUsers(data.addUsers);
+              await this.depopulateSpawner(data.depopulateSpawner);
+            if (data.addUsers !== undefined) this.addUsers(data.addUsers);
             if (data.updateUsers !== undefined)
-              thisObj.updateUsers(data.updateUsers);
-            if (data.delUsers !== undefined) thisObj.delUsers(data.delUsers);
+              this.updateUsers(data.updateUsers);
+            if (data.delUsers !== undefined) this.delUsers(data.delUsers);
             if (data.updateContent !== undefined)
-              thisObj.updateContent(data.updateContent);
+              this.updateContent(data.updateContent);
             if (data.addContent !== undefined)
-              await thisObj.addContent(data.addContent);
-            if (data.move !== undefined) thisObj.updateContent(data.move, true);
+              await this.addContent(data.addContent);
+            if (data.move !== undefined) this.updateContent(data.move, true);
             if (data.text !== undefined) {
-              thisObj.gameConsole.print(
+              this.gameConsole.print(
                 data.text.autor + ": ",
                 false,
                 "magenta",
               );
-              thisObj.gameConsole.print(data.text.content);
+              this.gameConsole.print(data.text.content);
             }
             if (data.warn !== undefined)
-              thisObj.gameConsole.print(data.warn.content, true, "red");
-            if (data.clearTable !== undefined) thisObj.clearTable();
-            if (data.delObjs !== undefined) thisObj.delObjs(data.delObjs);
-            if (data.hint !== undefined && thisObj.pageActive) {
+              this.gameConsole.print(data.warn.content, true, "red");
+            if (data.clearTable !== undefined) this.clearTable();
+            if (data.delObjs !== undefined) this.delObjs(data.delObjs);
+            if (data.hint !== undefined && this.pageActive) {
               if (data.hint.mousePos !== undefined)
-                thisObj.hintMousePos(data.hint.mousePos);
+                this.hintMousePos(data.hint.mousePos);
               if (data.hint.grab !== undefined)
-                thisObj.hintGrab(data.hint.grab);
+                this.hintGrab(data.hint.grab);
               if (data.hint.drop !== undefined)
-                thisObj.hintDrop(data.hint.drop);
+                this.hintDrop(data.hint.drop);
             }
-            if (data.emote !== undefined) thisObj.emote(data.emote);
+            if (data.emote !== undefined) this.emote(data.emote);
             if (data.request !== undefined)
-              thisObj.server.endRequest(data.request);
+              this.server.endRequest(data.request);
             if (data.form !== undefined)
-              thisObj.form(data.form.name, data.form.userData);
-            if (data.info !== undefined) thisObj.showServerInfo(data.info);
+              this.form(data.form.name, data.form.userData);
+            if (data.info !== undefined) this.showServerInfo(data.info);
             if (data.updateStatus !== undefined)
-              thisObj.updateStatus(data.updateStatus);
+              this.updateStatus(data.updateStatus);
             if (data.labelName !== undefined) {
               const name = data.labelName;
               if (/^[A-Za-z0-9_-]{8}$/.test(name)) {
                 const link = `${location.protocol}//${location.host}/clone?name=${name}`;
-                thisObj.gameConsole.print("Your clone link is:");
-                thisObj.gameConsole.print(link);
-                thisObj.formShareLink("Your table clone link", link);
+                this.gameConsole.print("Your clone link is:");
+                this.gameConsole.print(link);
+                this.formShareLink("Your table clone link", link);
               } else {
-                thisObj.gameConsole.print("Unable to generate clone link.");
+                this.gameConsole.print("Unable to generate clone link.");
               }
             }
-            if (data.revealObjs) thisObj.revealObjs(data.revealObjs);
+            if (data.revealObjs) this.revealObjs(data.revealObjs);
             if (data.revealObjsDetails)
-              await thisObj.revealObjsDetails(data.revealObjsDetails);
+              await this.revealObjsDetails(data.revealObjsDetails);
           }
         },
         onconnectionlost: (event) => {
@@ -284,31 +283,31 @@ class Game {
     );
     this.mouseX = 0;
     this.mouseY = 0;
-    $(window).mousemove(function (event) {
-      event.originalEvent.mvX = event.pageX - thisObj.mouseX;
-      event.originalEvent.mvY = event.pageY - thisObj.mouseY;
-      thisObj.mouseX = event.pageX;
-      thisObj.mouseY = event.pageY;
+    $(window).mousemove((event) => {
+      event.originalEvent.mvX = event.pageX - this.mouseX;
+      event.originalEvent.mvY = event.pageY - this.mouseY;
+      this.mouseX = event.pageX;
+      this.mouseY = event.pageY;
     });
     this.globalZIndex = 1;
 
     this.getArmyTime = 0;
-    $(window).keydown((event) => thisObj.handleKeydown(event));
+    $(window).keydown(this.handleKeydown.bind(this));
     document.addEventListener(
       "wheel",
-      function (event) {
-        if (thisObj.selectedObjs.size > 0) {
-          thisObj.selectedObjs.forEach((el) =>
+      (event) => {
+        if (this.selectedObjs.size > 0) {
+          this.selectedObjs.forEach((el) =>
             el.objEl.triggerHandler(
               "keydown",
               event.deltaY < 0 ? "KeyA" : "KeyD",
             ),
           );
         } else if (
-          thisObj.globalFocus != null &&
-          thisObj.globalFocus.length != 0
+          this.globalFocus != null &&
+          this.globalFocus.length != 0
         ) {
-          thisObj.globalFocus.triggerHandler(
+          this.globalFocus.triggerHandler(
             "keydown",
             event.deltaY < 0 ? "KeyA" : "KeyD",
           );
@@ -322,55 +321,55 @@ class Game {
               : event.deltaY / 10
             : event.deltaY / 2;
           const scaleFactor = Math.pow(0.95, delta);
-          thisObj.transformable.scale(
+          this.transformable.scale(
             scaleFactor,
-            thisObj.mouseX,
-            thisObj.mouseY,
+            this.mouseX,
+            this.mouseY,
           );
         }
         event.preventDefault();
       },
       { passive: false },
     );
-    $(window).keyup(function (event) {
+    $(window).keyup((event) => {
       const keyCode = event.originalEvent.code;
       if (keyCode == "ControlLeft" || keyCode == "ControlRight")
-        thisObj.controlKey = false;
+        this.controlKey = false;
       else if (keyCode == "AltLeft" || keyCode == "AltRight")
-        thisObj.altKey = false;
+        this.altKey = false;
     });
-    this.rootEl.mousedown(function (event) {
+    this.rootEl.mousedown((event) => {
       if (event.button == 0) {
-        if (thisObj.globalFocus == null || thisObj.globalFocus.length == 0) {
-          if (thisObj.altKey) thisObj.initMouseMapMove();
+        if (this.globalFocus == null || this.globalFocus.length == 0) {
+          if (this.altKey) this.initMouseMapMove();
           else {
-            thisObj.selectedObjs.forEach((el) => el.select());
-            thisObj.selectBox.enable(thisObj.mouseX, thisObj.mouseY);
+            this.selectedObjs.forEach((el) => el.select());
+            this.selectBox.enable(this.mouseX, this.mouseY);
           }
         }
-      } else if (event.button == 2) thisObj.selectBox.disable();
+      } else if (event.button == 2) this.selectBox.disable();
       else if (event.button == 1) {
-        if (thisObj.selectedObjs.size > 0) {
-          thisObj.selectedObjs.forEach((el) =>
+        if (this.selectedObjs.size > 0) {
+          this.selectedObjs.forEach((el) =>
             el.objEl.triggerHandler("keydown", "KeyW"),
           );
         } else if (
-          thisObj.globalFocus != null &&
-          thisObj.globalFocus.length != 0
+          this.globalFocus != null &&
+          this.globalFocus.length != 0
         ) {
-          thisObj.globalFocus.triggerHandler("keydown", "KeyW");
+          this.globalFocus.triggerHandler("keydown", "KeyW");
         }
       }
       // event.preventDefault();
     });
     this.gui = new GameGui();
     this.selectBox = new SelectBox(this.rootEl, (left, top, width, height) => {
-      const pos1 = thisObj.transformable.toPos({ left: left, top: top });
-      const pos2 = thisObj.transformable.toPos({
+      const pos1 = this.transformable.toPos({ left: left, top: top });
+      const pos2 = this.transformable.toPos({
         left: left + width,
         top: top + height,
       });
-      thisObj.objs.forEach(function (el) {
+      this.objs.forEach(function (el) {
         if (el) {
           if (
             el.left >= pos1.left &&
@@ -389,8 +388,8 @@ class Game {
       this.handleInput.bind(this),
     );
     this.gameConsole.print("Press 'enter' and type '/help' for further help.");
-    $(window).mouseover(function (event) {
-      thisObj.globalFocus = $(event.target).closest(".focusable");
+    $(window).mouseover((event) => {
+      this.globalFocus = $(event.target).closest(".focusable");
     });
     this.infoEl.fadeIn();
     document.addEventListener("visibilitychange", () => {
@@ -682,8 +681,7 @@ Table info (<span id='durationInfo'></span></span>):
       }
     }
     if (keyCode == "Enter") {
-      const thisObj = this;
-      this.gameConsole.get((mes) => thisObj.handleInput(mes));
+      this.gameConsole.get(this.handleInput.bind(this));
     } else if (keyCode == "ControlLeft" || keyCode == "ControlRight")
       this.controlKey = true;
     else if (keyCode == "AltLeft" || keyCode == "AltRight") this.altKey = true;
