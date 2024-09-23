@@ -1,4 +1,4 @@
-import mount from 'nhex-table-client';
+import mount, { ReconnectingWS } from 'nhex-table-client';
 
 function reportError(message, error) {
     console.error(message, 'Error:', error);
@@ -24,5 +24,5 @@ fetchResource('serverInfo').then(serverInfo => {
         getEmoteImg: (emote) => `/media/${emote}`,
         // getHelp: undefined,
         getTokenImg: (army, token) => `/media/armies/${army}/${token}`,
-    }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
+    }, roleRequest, (conf) => (new ReconnectingWS(`${serverInfo.tss_ws_url}/ws2/`, conf)), serverInfo);
 }).catch(error => reportError('Unable to load server info', error));

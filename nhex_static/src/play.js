@@ -24,7 +24,7 @@ if (!gameId) {
 } else {
     const roleRequest = { role: "player" };
     const serverInfoPromise = fetchResource('serverInfo');
-    import("nhex-table-client").then(async ({ default: mount }) => {
+    import("nhex-table-client").then(async ({ default: mount, ReconnectingWS }) => {
         try {
             const serverInfo = await serverInfoPromise;
             mount(clientRoot, gameId, {
@@ -34,7 +34,7 @@ if (!gameId) {
                 // getEmoteImg: (emote) => emote.image,
                 // getHelp: undefined,
                 getTokenImg: (army, token) => `/armies/${army}/${token}`,
-            }, roleRequest, `${serverInfo.tss_ws_url}/ws2/`, serverInfo);
+            }, roleRequest, (conf) => (new ReconnectingWS(`${serverInfo.tss_ws_url}/ws2/`, conf)), serverInfo);
         } catch (error) {
             reportError('Unable to load server info', error);
         }

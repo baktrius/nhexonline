@@ -22,6 +22,8 @@ import SpawnerObj from "./SpawnerObj.js";
 import Transformable from "./transformable.js";
 import initContextMenu from "./contextmenu.js";
 
+export { ReconnectingWS };
+
 const helpMessage = `available commands:
 /help - displays this help message
 /helpcenter - display help center
@@ -93,7 +95,7 @@ class GameGui {
   }
 }
 
-export default async function mount(el, tableId, resources, roleRequest, tableUrl, serverInfo) {
+export default async function mount(el, tableId, resources, roleRequest, getConnection, serverInfo) {
   el = $(el);
   el.html(`
 <div id="game">
@@ -105,7 +107,7 @@ export default async function mount(el, tableId, resources, roleRequest, tableUr
   <div class="loader"></div>
 </div>
 </div>`);
-  return (window.game = new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, tableUrl));
+  return (window.game = new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, getConnection));
 }
 
 function arraysEq(arr1, arr2) {
@@ -119,7 +121,7 @@ function arraysEq(arr1, arr2) {
 }
 
 class Game {
-  constructor(tableId, serverInfo, rootEl, resources, roleRequest, tableUrl) {
+  constructor(tableId, serverInfo, rootEl, resources, roleRequest, getConnection) {
     this.resources = resources;
     this.rootEl = rootEl;
     this.res = {};
@@ -146,8 +148,7 @@ class Game {
     this.emotesCoolDown = -1;
     this.pageActive = true;
     this.roleRequest = roleRequest;
-    this.ws = new ReconnectingWS(
-      tableUrl,
+    this.ws = getConnection(
       {
         onopen: (event) => {
           this.lastTime = new Date().getTime();
