@@ -201,7 +201,4 @@ export default class ServerAgent {
   text(mes) {
     this.sendMes({ text: { content: mes } });
   }
-  getLabel() {
-    this.sendMes({ getLabel: {} });
-  }
 }

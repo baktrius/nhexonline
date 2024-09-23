@@ -701,8 +701,9 @@ Table info (<span id='durationInfo'></span></span>):
           else this.gameConsole.print("invalid parameter '" + tokens[1] + "'");
         }
       } else if (tokens[0] == "/clonelink") {
-        this.server.getLabel();
-        this.gameConsole.print("Waiting for server response...");
+        this.gameConsole.print("Unimplemented!");
+        // this.server.getLabel();
+        // this.gameConsole.print("Waiting for server response...");
       } else if (tokens[0] == "/joinlink") {
         const link = `${location.protocol}//${location.host}/index.htm?join=${this.tableId}`;
         this.gameConsole.print("Your join link is");

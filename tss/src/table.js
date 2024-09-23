@@ -838,30 +838,6 @@ module.exports = class Table {
     this.globalQuality = globalQuality;
     this.adjustLocalQuality();
   }
-  getLabel(ws) {
-    let name = false;
-    try {
-      if (this.dumpFilePath !== undefined) {
-        name =
-          this.storage.getTableLabel(this.id, this.dumpFileLines - 1) ||
-          this.storage.addTableLabel(this.id, this.dumpFileLines - 1);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    ws.send(JSON.stringify({ labelName: name }));
-  }
-  addLabel() {
-    try {
-      if (this.dumpFilePath !== undefined) {
-        this.writeDumpBufferToFile();
-        return this.storage.addTableLabel(this.id, this.dumpFileLines - 1);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    return false;
-  }
   getInfo() {
     return {
       id: this.id,
