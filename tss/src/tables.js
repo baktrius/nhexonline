@@ -1,5 +1,6 @@
 const Table = require("./table.js");
 const fs = require("fs").promises;
+const FileTableStorage = require("./fileTableStorage");
 
 module.exports = class Tables {
   constructor(storage, serviceQuality, mainAgent) {
@@ -13,7 +14,7 @@ module.exports = class Tables {
     const newTable = new Table(
       id,
       this.serviceQuality,
-      this.getTablePath(id),
+      this.getTableStorage(id),
       this.storage,
       (change) => {
         const mes = JSON.stringify(change);
@@ -98,12 +99,7 @@ module.exports = class Tables {
   async createTable(boardName) {
     try {
       const id = await this.getFreshId();
-      const tablePath = this.getTablePath(id);
-      const file = await fs.open(tablePath, "wx");
-      if (boardName !== undefined) {
-        await file.write(JSON.stringify({ act: { board: boardName } }) + '\n');
-      }
-      await file.close();
+      await (this.getTableStorage(id).init());
       return id;
     } catch (error) {
       console.error(error);
@@ -112,5 +108,8 @@ module.exports = class Tables {
   }
   getTablePath(id) {
     return `tables/${id}`;
+  }
+  getTableStorage(id) {
+    return new FileTableStorage(this.getTablePath(id));
   }
 };

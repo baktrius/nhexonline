@@ -1,5 +1,3 @@
-const { promisify } = require("util");
-const fs = require("fs");
 const { QUALITY_LEVELS } = require("./config");
 const shuffle = require("./shuffle");
 
@@ -13,8 +11,6 @@ const ROLE_SPECTATOR = 3;
 
 const TABLE_REMOVAL_DELAY = 60 * 60 * 1000;
 
-const TABLE_DUMP_TIMEOUT = 10000;
-
 const ARMY_TOKENS_LIMIT = 100;
 
 const TABLE_MAX_NUMBER_OF_OBJS = 500;
@@ -27,14 +23,12 @@ module.exports = class Table {
   constructor(
     id,
     quality,
-    dumpFilePath,
+    tableStorage,
     storage,
     onChangeDescription,
     onRemove,
     mainAgent,
   ) {
-    this.dumpBuffer = "";
-    this.dumpService = undefined;
     this.id = id;
     this.content = [];
     this.history = [];
@@ -52,90 +46,12 @@ module.exports = class Table {
     this.onRemove = onRemove;
     this.secrets = new Map();
     this.mainAgent = mainAgent;
-    this.dumpFilePath = dumpFilePath;
-
+    this.tableStorage = tableStorage;
   }
   async load() {
-    if (typeof this.dumpFilePath === "string") {
-      this.dumpFileLines = 1;
-      let loadingError;
-      if ((loadingError = !(await this.loadFromDumpFile(this.dumpFilePath)))) {
-        console.log("error occurred during table loading");
-        return false;
-      }
-      this.initDumping(this.dumpFilePath);
-      if (this.lastLineNotEmpty === true) {
-        this.outStream.write("\n");
-        ++this.dumpFileLines;
-      }
-      if (loadingError) {
-        const prevLine =
-          this.history[this.history.length - 1]?.place.line ?? -1;
-        this.dump(`${JSON.stringify({ prev: { line: prevLine } })}\n`, true);
-      }
-    }
-    return true;
-  }
-  async loadFromDumpFile(path, line = -1, lockedFiles = new Set()) {
-    if (lockedFiles.has(path)) {
-      console.log(`error file ${path}, has been already referenced, aborting`);
-      return false;
-    }
-    lockedFiles.add(path);
-    let success = true;
     try {
-      const content = await promisify(fs.readFile)(path, "utf8");
-      const entires = content.split("\n");
-      if (line === -1 && lockedFiles.size === 1) {
-        this.dumpFileLines = entires.length;
-        this.lastLineNotEmpty = entires[entires.length - 1] !== "";
-        line = entires.length - 1;
-      }
-      const tableEntries = [];
-      while (line !== -1) {
-        if (typeof line !== "number") {
-          console.log(`error line no not numeric, aborting`);
-          return false;
-        }
-        if (entires[line] == "") {
-          --line;
-          continue;
-        }
-        try {
-          const entry = JSON.parse(entires[line]);
-          if (entry.act !== undefined) {
-            tableEntries.push({
-              act: entry.act,
-              place: { line: line, file: path },
-            });
-          }
-          const prevLine = entry?.prev?.line;
-          const prevFile = entry?.prev?.file;
-          if (prevFile !== undefined && prevFile !== path) {
-            if (
-              !(await this.loadFromDumpFile(prevFile, prevLine, lockedFiles))
-            ) {
-              return false;
-            }
-            break;
-          }
-          if (prevLine !== undefined) {
-            if (prevLine >= line) {
-              throw new Error("invalid prev line value");
-            }
-            line = prevLine;
-          } else --line;
-        } catch (err) {
-          console.log(
-            `error (${err}) in line no ${line} in file ${path}, starting again from line ${line - 1}`,
-          );
-          success = false;
-          --line;
-          tableEntries.length = 0;
-        }
-      }
-      for (let i = 0; i < tableEntries.length; ++i) {
-        const el = tableEntries[tableEntries.length - 1 - i];
+      const commands = await this.tableStorage.load();
+      commands.reverse().forEach((el) => {
         try {
           this.execute(el.act, { type: 3, place: el.place });
         } catch (err) {
@@ -143,8 +59,14 @@ module.exports = class Table {
           console.log(JSON.stringify(el));
           return false;
         }
-      }
-      return success;
+      });
+      this.tableStorage.initDumping((err) => {
+        this.storage.logEvent("tableDumpError", {
+          place: "tableDumpWriting",
+          err: err,
+        });
+      });
+      return true;
     } catch (err) {
       console.log(err);
       if (err.code !== "ENOENT") {
@@ -152,43 +74,8 @@ module.exports = class Table {
           place: "tableLoading",
           err: err,
         });
-        return false;
       }
-    }
-  }
-  initDumping(path) {
-    this.outStream = fs.createWriteStream(path, { flags: "a" });
-    this.outStream?.on?.("error", (err) => {
-      this.storage.logEvent("tableDumpError", {
-        place: "tableDumpWriting",
-        err: err,
-      });
-      this.outStream = undefined;
-    });
-  }
-  dump(text, important = false) {
-    this.dumpBuffer += text;
-    if (this.outStream !== undefined) {
-      if (important) {
-        this.writeDumpBufferToFile();
-      } else if (this.dumpService === undefined) {
-        console.log("initialize saving");
-        this.dumpService = setTimeout(
-          this.writeDumpBufferToFile.bind(this),
-          TABLE_DUMP_TIMEOUT,
-        );
-      }
-    }
-  }
-  writeDumpBufferToFile() {
-    if (this.dumpService !== undefined) {
-      clearTimeout(this.dumpService);
-      this.dumpService = undefined;
-    }
-    if (this.outStream !== undefined) {
-      console.log("saving table state");
-      this.outStream?.write?.(this.dumpBuffer);
-      this.dumpBuffer = "";
+      return false;
     }
   }
   startRemovalService() {
@@ -205,14 +92,7 @@ module.exports = class Table {
   remove() {
     this.sendAll({ close: true });
     this.onRemove(this);
-    if (this.outStream !== undefined) {
-      if (this.dumpBuffer.length > 0) {
-        this.writeDumpBufferToFile();
-      }
-      setTimeout(() => {
-        this.outStream.close();
-      }, 1000);
-    }
+    this.tableStorage.close()
   }
   /**
    * Wysyła wiadomość do wszystkich graczy oglądających stół.
@@ -532,47 +412,22 @@ module.exports = class Table {
   addHistory({ type, place }, action, revAction, important = false) {
     if (type == 2) {
       this.future.push({ place: place, act: revAction });
-      if (this.outStream !== undefined) {
-        const actual = this.history[this.history.length - 1] ?? {
-          place: { line: -1 },
-        };
-        this.dump(
-          `${JSON.stringify({ prev: this.simplifyPlace(actual.place) })}\n`,
-          important,
-        );
-        ++this.dumpFileLines;
-      }
+      const actual = this.history[this.history.length - 1] ?? {
+        place: { line: -1 },
+      };
+      this.tableStorage.dump(actual.place, important);
     } else {
       this.history.push({ place: place, act: revAction });
       if (type == 0) {
-        if (this.outStream !== undefined) {
-          const prev = this.history[this.history.length - 2] ?? {
-            place: { line: -1 },
-          };
-          this.dump(
-            `${JSON.stringify({ prev: this.simplifyPlace(prev.place), act: action })}\n`,
-            important,
-          );
-          ++this.dumpFileLines;
-        }
+        const prev = this.history[this.history.length - 2] ?? {
+          place: { line: -1 },
+        };
+        this.tableStorage.dump(prev.place, important, action);
         this.future = [];
       } else if (type == 1) {
-        if (this.outStream !== undefined) {
-          this.dump(
-            `${JSON.stringify({ prev: this.simplifyPlace(this.history[this.history.length - 1].place) })}\n`,
-            important,
-          );
-          ++this.dumpFileLines;
-        }
+        this.tableStorage.dump(this.history[this.history.length - 1].place, important);
       }
     }
-  }
-  simplifyPlace(place) {
-    if (place.file === undefined || place.file === this.dumpFilePath) {
-      if (place.line === undefined || place.line === this.dumpFileLines - 2)
-        return undefined;
-      else return { line: place.line };
-    } else return place;
   }
   clearTable(hist) {
     if (this.content.length > 0) {
@@ -830,12 +685,11 @@ module.exports = class Table {
       if (this.owners.has(ws)) {
         if (data.promoteUser !== undefined) this.promoteUser(data.promoteUser);
         if (data.demoteUser !== undefined) this.demoteUser(data.demoteUser);
-        if (data.getLabel !== undefined) this.getLabel(ws);
       }
       if (this.players.has(ws)) {
         this.execute(data, {
           type: 0,
-          place: { line: this.dumpFileLines - 1 },
+          place: this.tableStorage.getCurrentPlace(),
         });
         if (data.revealObjs !== undefined) {
           this.revealObjs(data.revealObjs, ws);
