@@ -16,15 +16,6 @@ module.exports = class Storage {
   logStat(stats) {
     this.appendJson({ type: "stat", data: stats });
   }
-  addTableLabel(table, line) {
-    return false;
-  }
-  getTableLabel(table, line) {
-    return false;
-  }
-  getTableLabelDesc(name) {
-    return false;
-  }
   close() {
     fs.closeSync(this.file);
   }
