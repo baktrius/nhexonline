@@ -132,7 +132,7 @@ module.exports = class FileTableStorage {
     return { line: this.dumpFileLines - 1 };
   }
   async init(boardName) {
-    const file = await fs.open(this.dumpFilePath, "wx");
+    const file = await fs.promises.open(this.dumpFilePath, "wx");
     if (boardName !== undefined) {
       await file.write(JSON.stringify({ act: { board: boardName } }) + '\n');
     }

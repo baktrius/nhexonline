@@ -99,7 +99,7 @@ module.exports = class Tables {
   async createTable(boardName) {
     try {
       const id = await this.getFreshId();
-      await (this.getTableStorage(id).init());
+      await (this.getTableStorage(id).init(boardName));
       return id;
     } catch (error) {
       console.error(error);
