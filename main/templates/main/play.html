@@ -1,7 +1,7 @@
 {% extends "main/tableDetails.html" %}
 {% load static %}
 {% block all %}
-<div hx-boost="false" class="flex flex-col h-dvh">
+<div hx-boost="false" class="flex flex-col h-dvh" hx-history="false">
   {% #nav user=user csrf_token=csrf_token %}
   <div class="text-gray-200">
     {% block breadcrumbs %}

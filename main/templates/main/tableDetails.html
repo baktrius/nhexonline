@@ -18,7 +18,7 @@ further reference but protect it from strangers.
 {% /section%}
 {% endif %}
 {% #section title="Play" %}
-<form action="{% url "main:play" pk=table.pk %}" method="get" class="frm">
+<form action="{% url "main:play" pk=table.pk %}" method="get" class="frm" hx-boost="false">
   <label for="id_nick">Visible nickname:</label>
   <input type="text" name="nick" placeholder="Enter your nickname" value="{{ nick }}" />
   <input type="submit" value="Join as owner" class="btn" />
