@@ -1,4 +1,4 @@
-module.exports = function (array) {
+export default (function (array) {
   let currentIndex = array.length;
   let temporaryValue;
   let randomIndex;
@@ -16,4 +16,4 @@ module.exports = function (array) {
   }
 
   return array;
-};
+});

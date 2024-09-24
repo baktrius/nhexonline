@@ -1,8 +1,8 @@
-const Table = require("./table.js");
-const fs = require("fs").promises;
-const FileTableStorage = require("./fileTableStorage");
-
-module.exports = class Tables {
+import Table from "./table.js";
+import { promises } from "fs";
+import FileTableStorage from "./fileTableStorage.js";
+const fs = { promises }.promises;
+export default (class Tables {
   constructor(storage, serviceQuality, mainAgent) {
     this.storage = storage;
     this.serviceQuality = serviceQuality;
@@ -112,4 +112,4 @@ module.exports = class Tables {
   getTableStorage(id) {
     return new FileTableStorage(this.getTablePath(id));
   }
-};
+});

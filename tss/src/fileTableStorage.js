@@ -1,9 +1,7 @@
-const { promisify } = require("util");
-const fs = require("fs");
-
+import { promisify } from "util";
+import fs from "fs";
 const TABLE_DUMP_TIMEOUT = 10000;
-
-module.exports = class FileTableStorage {
+export default (class FileTableStorage {
   constructor(dumpFilePath) {
     this.dumpFilePath = dumpFilePath;
     this.dumpBuffer = "";
@@ -138,4 +136,4 @@ module.exports = class FileTableStorage {
     }
     await file.close();
   }
-};
+});

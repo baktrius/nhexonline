@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "bin": "table_server.js",
+  "exports": {
+    ".": "./table_server.js",
+    "./table": "./src/table.js"
+  },
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon table_server.js"

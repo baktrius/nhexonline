@@ -1,6 +1,5 @@
-const { QUALITY_LEVELS } = require("./config");
-const shuffle = require("./shuffle");
-
+import { QUALITY_LEVELS } from "./config.js";
+import shuffle from "./shuffle.js";
 const OBJ = 1;
 const TOKEN = 2;
 const SPAWNER = 3;
@@ -16,19 +15,8 @@ const ARMY_TOKENS_LIMIT = 100;
 const TABLE_MAX_NUMBER_OF_OBJS = 500;
 
 const errToMany = (type) => `'Error in army config: it has to many ${type}.'`;
-
-class ActionError extends Error { }
-
-module.exports = class Table {
-  constructor(
-    id,
-    quality,
-    tableStorage,
-    storage,
-    onChangeDescription,
-    onRemove,
-    mainAgent,
-  ) {
+export default (class Table {
+  constructor(id, quality, tableStorage, storage, onChangeDescription, onRemove, mainAgent) {
     this.id = id;
     this.content = [];
     this.history = [];
@@ -846,4 +834,4 @@ module.exports = class Table {
       }),
     };
   }
-};
+});

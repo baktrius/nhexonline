@@ -1,18 +1,27 @@
 {
   "env": {
     "browser": true,
-    "commonjs": true,
+    "commonjs": false,
     "es2020": true,
     "node": true
   },
-  "extends": ["eslint:recommended", "google", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "google",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": 11,
     "sourceType": "module"
   },
   "rules": {
     "require-jsdoc": 0,
-    "max-len": ["error", { "code": 120 }],
+    "max-len": [
+      "error",
+      {
+        "code": 120
+      }
+    ],
     "no-undef": "error"
   }
 }

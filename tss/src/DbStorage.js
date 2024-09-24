@@ -1,6 +1,5 @@
-const fs = require("fs");
-
-module.exports = class Storage {
+import fs from "fs";
+export default (class Storage {
   constructor(dbName) {
     this.file = fs.openSync(dbName, "a");
   }
@@ -19,4 +18,4 @@ module.exports = class Storage {
   close() {
     fs.closeSync(this.file);
   }
-};
+});

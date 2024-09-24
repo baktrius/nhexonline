@@ -1,6 +1,5 @@
-const axios = require('axios');
-
-module.exports = class MainServer {
+import axios from 'axios';
+export default (class MainServer {
   constructor(url) {
     this.url = url;
   }
@@ -15,4 +14,4 @@ module.exports = class MainServer {
       return false;
     }
   }
-}
+});

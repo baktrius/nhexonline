@@ -1,15 +1,13 @@
 #!/usr/bin/env node
-
-const express = require("express");
-const http = require("http");
-const websocket = require("ws");
-const DbStorage = require("./src/DbStorage.js");
-const config = require("./src/config.js");
-const Tables = require("./src/tables.js");
-const MainAgent = require("./src/mainAgent.js");
-const url = require("url");
-var cors = require('cors')
-
+import express from "express";
+import http from "http";
+import { WebSocketServer } from "ws";
+import DbStorage from "./src/DbStorage.js";
+import config from "./src/config.js";
+import Tables from "./src/tables.js";
+import MainAgent from "./src/mainAgent.js";
+import url from "url";
+import cors from "cors";
 const app = express();
 app.set("trust proxy", 1);
 
@@ -59,8 +57,7 @@ const tablesList = new Tables(storage, serviceQuality, mainAgent);
 let nextUserId = 0;
 
 // initialize the WebSocket server instance
-const wss = new websocket.Server({ server: server, clientsTracking: true });
-
+const wss = new WebSocketServer({ server: server, clientsTracking: true });
 process.on("exit", () => {
   storage.logEvent("serviceStop", null);
   storage.close();
