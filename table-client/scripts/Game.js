@@ -308,14 +308,7 @@ class Game {
             event.deltaY < 0 ? "KeyA" : "KeyD",
           );
         } else {
-          const isChrome =
-            /Chrome/.test(navigator.userAgent) &&
-            /Google Inc/.test(navigator.vendor);
-          const delta = isChrome
-            ? Math.abs(event.deltaY) > 40
-              ? event.deltaY / 60
-              : event.deltaY / 10
-            : event.deltaY / 2;
+          const delta = Math.sign(event.deltaY);
           const scaleFactor = Math.pow(0.95, delta);
           this.transformable.scale(
             scaleFactor,
