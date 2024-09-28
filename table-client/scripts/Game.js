@@ -102,7 +102,7 @@ export default async function mount(el, tableId, resources, roleRequest, getConn
   <div class="loader"></div>
 </div>
 </div>`);
-  return (window.game = new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, getConnection));
+  return new Game(tableId, serverInfo, el.children("#game"), resources, roleRequest, getConnection);
 }
 
 function arraysEq(arr1, arr2) {
