@@ -168,7 +168,7 @@ export default class Obj {
         top: el.top,
       }));
       thisObj.game.server.requestMove(changes);
-      if (hintMovement) thisObj.game.sendDrop();
+      if (hintMovement) thisObj.game.sendDrop(event);
       // wyłączenie callbacku przenoszącego obiekty
       $(window).off("mousemove.objMove");
       // zwolnienie uprzednio zablokowanych obiektów

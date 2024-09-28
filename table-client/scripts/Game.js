@@ -289,7 +289,7 @@ class Game {
 
     this.getArmyTime = 0;
     $(window).keydown(this.handleKeydown.bind(this));
-    document.addEventListener(
+    this.rootEl[0].addEventListener(
       "wheel",
       (event) => {
         if (this.selectedObjs.size > 0) {
@@ -312,8 +312,8 @@ class Game {
           const scaleFactor = Math.pow(0.95, delta);
           this.transformable.scale(
             scaleFactor,
-            this.mouseX,
-            this.mouseY,
+            event.pageX,
+            event.pageY,
           );
         }
         event.preventDefault();
@@ -333,7 +333,7 @@ class Game {
           if (this.altKey) this.initMouseMapMove();
           else {
             this.selectedObjs.forEach((el) => el.select());
-            this.selectBox.enable(this.mouseX, this.mouseY);
+            this.selectBox.enable(event.pageX, event.pageY);
           }
         }
       } else if (event.button == 2) this.selectBox.disable();
@@ -502,11 +502,11 @@ class Game {
     $(window).on("mousemove.mouseservice", (event) => {
       const time =
         this.lastMouseUpdate + this.mouseUpdateCoolDown - new Date().getTime();
-      if (time < 0) this.sendMousePos(this.mouseX, this.mouseY);
+      if (time < 0) this.sendMousePos(event.pageX, event.pageY);
       else if (this.mouseUpdateService === null) {
         this.mouseUpdateService = window.setTimeout(() => {
           this.mouseUpdateService = null;
-          this.sendMousePos(this.mouseX, this.mouseY);
+          this.sendMousePos(event.pageX, event.pageY);
         }, time);
       }
     });
@@ -709,9 +709,9 @@ Table info (<span id='durationInfo'></span></span>):
     const inGamePos = this.transformable.toPos({ left: mouseX, top: mouseY });
     this.server.hintMousePos(inGamePos);
   }
-  sendDrop() {
+  sendDrop(event) {
     this.server.hintDrop();
-    setTimeout(() => this.sendMousePos(this.mouseX, this.mouseY), 0);
+    setTimeout(() => this.sendMousePos(event.pageX, event.pageY), 0);
   }
   save() {
     download(
