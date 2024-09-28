@@ -2,11 +2,6 @@ import $ from "./globalJquery.js";
 import "jquery-contextmenu";
 import "jquery-contextmenu/dist/jquery.contextMenu.min.css";
 import "jquery-contextmenu/dist/jquery.ui.position.js";
-import tippy from 'tippy.js';
-window.tippy = tippy;
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/light-border.css';
-import 'tippy.js/themes/light.css';
 import '../styles/game.css';
 
 import download from "./download.js";

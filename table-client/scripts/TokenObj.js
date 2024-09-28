@@ -1,5 +1,7 @@
-/* global tippy */
-import { followCursor } from "tippy.js";
+/* global */
+import tippy, { followCursor } from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
 import Obj from "./obj.js";
 import hexSvg from "./hexSvg.js";
 import generateInfo from "./generateInfo.js";

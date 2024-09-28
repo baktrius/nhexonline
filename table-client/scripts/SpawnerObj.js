@@ -1,8 +1,11 @@
-/* global $ tippy*/
+/* global $*/
 import TokenObj from "./TokenObj.js";
 import hexSvg from "./hexSvg.js";
 import BoxObj from "./BoxObj.js";
 import invalidRes from "./invalidRes.jpg";
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
 
 export default class SpawnerObj extends BoxObj {
   constructor(parentEl, id, left, top, tokens, game) {
