@@ -411,7 +411,7 @@ class Game {
   }
   randomArmy() {
     const armies = this.serverInfo.res.armies;
-    return armies[Math.floor(Math.random() * armies.length)].name;
+    return armies[Math.floor(Math.random() * armies.length)].id;
   }
   async getRelativeRotate() {
     return (await this.getBoardRes(this.board))?.relativeRotate ?? 0;

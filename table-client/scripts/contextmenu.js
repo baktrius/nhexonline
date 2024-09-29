@@ -206,7 +206,7 @@ export default async function initContextMenu(game, armies, rootEl) {
   const [privateArmies, publicArmies] = partition(commonArmies, (army) => army.private);
   const [customArmies, officialArmies] = partition(publicArmies, (army) => army.custom);
   const armiesMenu = Object.assign(
-    { getRandomArmy: { name: "Random" } },
+    armies.length > 0 ? { getRandomArmy: { name: "Random" } } : {},
     subArmiesMenu(customArmies, "getCustomArmy", "Custom"),
     subArmiesMenu(privateArmies, "getPrivateArmy", "Private"),
     genArmiesEntries(officialArmies),
