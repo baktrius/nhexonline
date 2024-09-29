@@ -138,10 +138,21 @@
 }
 
 .spawnerButton {
-  padding: 4px;
+  padding: 1px 2px;
   display: inline;
   font-size: large;
   font-size: 16px;
+  background-color: #888;
+  border-radius: 2px;
+  border: solid black 1px;
+}
+
+.spawnerButton:hover {
+  background-color: #777;
+}
+
+.spawnerButton:focus {
+  background-color: #666;
 }
 
 .spawnerCounter {
