@@ -17,7 +17,7 @@ async function fetchResource(resource) {
     }
 }
 fetchResource('serverInfo').then(serverInfo => {
-    mount(document.getElementById('content'), tableId, {
+    return mount(document.getElementById('content'), tableId, {
         getArmyInfo: (armyId) => fetchResource(`armies/${armyId}/info/`),
         getBoardInfo: (boardId) => fetchResource(`boards/${boardId}/info/`),
         getBoardImg: (_, img) => img,
@@ -25,4 +25,6 @@ fetchResource('serverInfo').then(serverInfo => {
         // getHelp: undefined,
         getTokenImg: (army, token) => `/media/armies/${army}/${token}`,
     }, roleRequest, (conf) => (new ReconnectingWS(`${serverInfo.tss_ws_url}/ws2/`, conf)), serverInfo);
+}).then((game) => {
+    window.game = game;
 }).catch(error => reportError('Unable to load server info', error));
