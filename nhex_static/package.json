@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "nhex-table-client": "file:../table-client",
+    "nhex-tss": "file:../tss",
     "vue": "^3.4.38",
     "vuetify": "^3.7.1"
   }
