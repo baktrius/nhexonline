@@ -106,6 +106,10 @@ export default class TokenObj extends Obj {
       });
     }
   }
+  destroy() {
+    this.tokensInfoTippy?.destroy();
+    super.destroy();
+  }
   getVisPos() {
     return applySticky(this.stickyPoints, this.left, this.top);
   }

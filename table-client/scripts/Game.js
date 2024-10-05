@@ -143,6 +143,7 @@ class Game {
     this.emotesCoolDown = -1;
     this.pageActive = true;
     this.roleRequest = roleRequest;
+    this.globalAbortController = new AbortController();
     this.ws = getConnection(
       {
         onopen: (event) => {
@@ -279,16 +280,16 @@ class Game {
     );
     this.mouseX = 0;
     this.mouseY = 0;
-    $(window).mousemove((event) => {
-      event.originalEvent.mvX = event.pageX - this.mouseX;
-      event.originalEvent.mvY = event.pageY - this.mouseY;
+    window.addEventListener("mousemove", (event) => {
+      event.mvX = event.pageX - this.mouseX;
+      event.mvY = event.pageY - this.mouseY;
       this.mouseX = event.pageX;
       this.mouseY = event.pageY;
-    });
+    }, this.getEventConf());
     this.globalZIndex = 1;
 
     this.getArmyTime = 0;
-    $(window).keydown(this.handleKeydown.bind(this));
+    window.addEventListener("keydown", this.handleKeydown.bind(this), this.getEventConf());
     this.rootEl[0].addEventListener(
       "wheel",
       (event) => {
@@ -318,16 +319,16 @@ class Game {
         }
         event.preventDefault();
       },
-      { passive: false },
+      { passive: false, signal: this.globalAbortController.signal },
     );
-    $(window).keyup((event) => {
-      const keyCode = event.originalEvent.code;
+    window.addEventListener("keyup", (event) => {
+      const keyCode = event.code;
       if (keyCode == "ControlLeft" || keyCode == "ControlRight")
         this.controlKey = false;
       else if (keyCode == "AltLeft" || keyCode == "AltRight")
         this.altKey = false;
-    });
-    this.rootEl.mousedown((event) => {
+    }, this.getEventConf());
+    this.rootEl[0].addEventListener("mousedown", (event) => {
       if (event.button == 0) {
         if (this.globalFocus == null || this.globalFocus.length == 0) {
           if (this.altKey) this.initMouseMapMove();
@@ -350,7 +351,7 @@ class Game {
         }
       }
       // event.preventDefault();
-    });
+    }, this.getEventConf());
     this.gui = new GameGui();
     this.selectBox = new SelectBox(this.rootEl, (left, top, width, height) => {
       const pos1 = this.transformable.toPos({ left: left, top: top });
@@ -377,14 +378,14 @@ class Game {
       this.handleInput.bind(this),
     );
     this.gameConsole.print("Press 'enter' and type '/help' for further help.");
-    $(window).mouseover((event) => {
+    window.addEventListener("mouseover", (event) => {
       this.globalFocus = $(event.target).closest(".focusable");
-    });
+    }, this.getEventConf());
     this.infoEl.fadeIn();
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) this.enterInactiveState();
       else this.enterActiveState();
-    });
+    }, this.getEventConf());
     this.rootEl.prepend(`
 <div id="table" style='width: 0px; height: 0px'>
   <div id="layer1"></div>
@@ -395,6 +396,9 @@ class Game {
     this.layer1El = this.tableEl.children("#layer1");
     this.layer2El = this.tableEl.children("#layer2");
     this.layer3El = this.tableEl.children("#layer3");
+  }
+  getEventConf() {
+    return { signal: this.globalAbortController.signal };
   }
   setAccount(data) {
     if (!this.nick) {
@@ -455,12 +459,13 @@ class Game {
       left: ${res.left}px; top: ${res.top}px;
       width: ${res.width}px; height: ${res.height}px'>`);
       this.transformable = new Transformable(this.tableEl, 1, 25, 0, 2);
-      $(window).resize(this.transformable, (event) => event.data.adjust());
+      window.addEventListener("resize", () => { this.transformable.adjust() }, this.getEventConf());
       if (this.resources.getHelp !== undefined) {
         const helpNode = $(document.createElement("div"));
         helpNode.html(
           `First time here? Click <span class='link'>here</span> for help.`,
         );
+        // JQUERY EVENTS HANDLERS
         helpNode.children("span").click(this.showHelp.bind(this));
         helpNode
           .children("span")
@@ -476,6 +481,7 @@ class Game {
       data.text.replace("<!", `<span class='link'>`).replace("!>", `</span>`),
     );
     if (data.res !== undefined) {
+      // JQUERY EVENTS HANDLERS
       helpNode
         .children("span")
         .click(this.form.bind(this, data.res, data.userData));
@@ -499,7 +505,7 @@ class Game {
   }
   enableMouseUpdateService() {
     this.mouseUpdateServiceStatus = true;
-    $(window).on("mousemove.mouseservice", (event) => {
+    this.mouseUpdateServiceHandler = (event) => {
       const time =
         this.lastMouseUpdate + this.mouseUpdateCoolDown - new Date().getTime();
       if (time < 0) this.sendMousePos(event.pageX, event.pageY);
@@ -509,11 +515,12 @@ class Game {
           this.sendMousePos(event.pageX, event.pageY);
         }, time);
       }
-    });
+    }
+    window.addEventListener("mousemove", this.mouseUpdateServiceHandler, this.getEventConf());
   }
   disableMouseUpdateService() {
     this.mouseUpdateServiceStatus = false;
-    $(window).off("mousemove.mouseservice");
+    window.removeEventListener("mousemove", this.mouseUpdateServiceHandler);
   }
   adjustMouseUpdateService() {
     let activeUsers = 0;
@@ -549,12 +556,13 @@ class Game {
     );
   }
   initMouseMapMove() {
-    $(window).on("mousemove.viewMove", (event) => {
-      this.transformable.move(event.originalEvent.mvX, event.originalEvent.mvY);
-    });
-    $(window).one("mouseup", function (event) {
-      if (event.button == 0) $(window).off("mousemove.viewMove");
-    });
+    const handler = (event) => {
+      this.transformable.move(event.mvX, event.mvY);
+    }
+    window.addEventListener("mousemove", handler, this.getEventConf());
+    window.addEventListener("mouseup", (event) => {
+      if (event.button == 0) window.removeEventListener("mousemove", handler);
+    }, { signal: this.globalAbortController.signal, once: true });
   }
   formBase(title, content) {
     this.gameConsole.blur();
@@ -577,6 +585,7 @@ class Game {
         .find(".globalInfo")
         .slideToggle({ complete: () => $(event.target).remove() });
     });
+    // JQUERY EVENTS HANDLERS
     coverEl.find(".closeButton").click(() => coverEl.trigger("del"));
     coverEl.mousedown((event) => {
       if (event.target === coverEl[0]) {
@@ -610,6 +619,7 @@ class Game {
     <input id='linkValue' type='text' value='${link}' style='width: 100%; box-sizing: border-box'>
     <button id='getLinkButton' style='width: 100%; box-sizing: border-box'>Copy to clipboard</button>`,
     );
+    // JQUERY EVENTS HANDLERS
     $("#getLinkButton").click(() => {
       $("#linkValue").select();
       document.execCommand("copy");
@@ -630,17 +640,18 @@ Table info (<span id='durationInfo'></span></span>):
 </div>`);
     this.infoContentEl = this.infoEl.children(".content");
     this.usersListEl = this.infoContentEl.children(".usersList");
+    // JQUERY EVENTS HANDLERS
     this.infoEl.click((event) => {
       if (event.target.tagName != "BUTTON") this.infoContentEl.slideToggle();
     });
     setTimeout(() => this.infoContentEl.slideToggle(), 0);
   }
   handleKeydown(event) {
-    const keyCode = event.originalEvent.code;
+    const keyCode = event.code;
     if (!this.isSpectator()) {
       if (keyCode == "KeyZ") this.server.requestUndo();
       else if (keyCode == "KeyY") this.server.requestRedo();
-      if (!event.originalEvent.repeat) {
+      if (!event.repeat) {
         const emote = this.serverInfo.res.emotes.find((el) => el?.keyshortcut == keyCode);
         const pos = this.transformable.toPos({
           left: this.mouseX,
@@ -726,7 +737,7 @@ Table info (<span id='durationInfo'></span></span>):
   open() {
     upload((data) => {
       this.server.requestSetTable(data);
-    });
+    }, this.globalAbortController.signal);
   }
   infoRequest() {
     const duration = this.server.activeRequestDuration();
@@ -831,6 +842,7 @@ Table info (<span id='durationInfo'></span></span>):
         helpNode.html(
           `'${escapeHtml(user.userName)}' is spectating the game. Click <span class='link'>here</span> to change his/her role to player.`,
         );
+        // JQUERY EVENTS HANDLERS
         helpNode
           .children("span")
           .click(this.server.requestUserPromote.bind(this.server, user.userId));
@@ -1116,6 +1128,7 @@ Table info (<span id='durationInfo'></span></span>):
       warnNode.html(
         `Some resources are not valid. Click <span class='link'>here</span> to clear the table.`,
       );
+      // JQUERY EVENTS HANDLERS
       warnNode
         .children("span")
         .click(this.server.requestTableClear.bind(this.server));
@@ -1124,5 +1137,15 @@ Table info (<span id='durationInfo'></span></span>):
         .click((event) => $(event.target).parent().parent().trigger("del"));
       this.warn(warnNode[0], INVALID_RES_TIMEOUT, ["invalidRes"]);
     }
+  }
+  removeEventListeners() {
+    this.globalAbortController.abort();
+  }
+  destroy() {
+    this.removeEventListeners();
+    this.objs.forEach((el) => {
+      if (el) el.destroy();
+    });
+    this.rootEl.empty();
   }
 }

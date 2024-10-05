@@ -300,6 +300,7 @@ export default async function initContextMenu(game, armies, rootEl) {
   });
   $.contextMenu(config);
 
+  // JQUERY EVENT HANDLERS
   rootEl.mousedown(function (event) {
     if (event.button == 2) {
       contextMenuX = event.originalEvent.pageX;

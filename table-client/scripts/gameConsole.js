@@ -36,6 +36,7 @@ export default class GameConsole {
     this.el = $(parent.children(`#${id}`));
     this.el.find(".consoleNav").mousedown(this, function (event) {
       if (event.which == 1) {
+        // JQUERY EVENT HANDLERS
         $(window).mousemove(event.data, onMoveConsole);
         $(window).one("mouseup", (event) => {
           $(window).off("mousemove", onMoveConsole);

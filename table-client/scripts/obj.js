@@ -89,10 +89,14 @@ export default class Obj {
       .fadeOut({
         duration: 200,
         queue: "showQueue",
-        complete: () => this.objEl.remove(),
+        complete: () => {
+          this.objEl.remove()
+          this.destroy();
+        },
       })
       .dequeue("showQueue");
   }
+  destroy() { }
   handleMouseDown(event) {
     // odznaczenie obiektów w przypadku wybrania obiektu, który nie jest zaznaczony
     if (
@@ -148,14 +152,15 @@ export default class Obj {
     // callback obsługujący aktualizacje aktualnej pozycji przenoszonych obiektów
     // przy poruszaniu myszki
     const thisObj = this;
-    $(window).on("mousemove.objMove", function (event) {
+    const handler = function (event) {
       const scale = thisObj.game.transformable.getScale();
-      const dX = event.originalEvent.mvX / scale;
-      const dY = event.originalEvent.mvY / scale;
+      const dX = event.mvX / scale;
+      const dY = event.mvY / scale;
       movedObjs.forEach((el) => el.move(dX, dY));
-    });
+    }
+    window.addEventListener("mousemove", handler, this.game.getEventConf());
     // callback obsługujący zakończenie przenoszenia obiektów po puszczeniu myszki
-    $(window).one("mouseup", function (event) {
+    window.addEventListener("mouseup", function (event) {
       // zastosowanie zmian spowodowanych przez stickyPoints do obiektów
       movedObjs.forEach((el) => {
         el.setPosToVisPos();
@@ -170,10 +175,10 @@ export default class Obj {
       thisObj.game.server.requestMove(changes);
       if (hintMovement) thisObj.game.sendDrop(event);
       // wyłączenie callbacku przenoszącego obiekty
-      $(window).off("mousemove.objMove");
+      window.removeEventListener("mousemove", handler);
       // zwolnienie uprzednio zablokowanych obiektów
       thisObj.game.objsLock = new Set();
-    });
+    }, { signal: this.game.globalAbortController.signal, once: true });
   }
   save() {
     return {

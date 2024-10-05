@@ -57,12 +57,17 @@ export default class SpawnerObj extends BoxObj {
         this.objEl[0].dataset.hover = "";
       },
     });
+    // JQUERY EVENT HANDLERS
     $(this.tokensInfoTippy.popper).mousedown((event) => {
       const res = $(event.target).parents("div>svg").parent()[0].dataset.res;
       this.getTokenByRes(event, res);
       event.preventDefault();
     });
     if (this.tokens.length == 0) this.disableButton();
+  }
+  destroy() {
+    this.tokensInfoTippy.destroy();
+    super.destroy();
   }
   getNextToken(event) {
     if (

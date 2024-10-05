@@ -1,4 +1,4 @@
-export default function upload(onSuccess) {
+export default function upload(onSuccess, signal) {
   const element = document.createElement("input");
   element.setAttribute("type", "file");
 
@@ -17,5 +17,5 @@ export default function upload(onSuccess) {
 
       document.body.removeChild(element);
     }
-  });
+  }, { signal });
 }
