@@ -90,7 +90,7 @@ class GameGui {
   }
 }
 
-export default async function mount(el, tableId, resources, roleRequest, getConnection, serverInfo) {
+export default function mount(el, tableId, resources, roleRequest, getConnection, serverInfo) {
   el = $(el);
   el.html(`
 <div id="game">
