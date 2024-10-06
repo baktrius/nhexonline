@@ -146,10 +146,10 @@ class Game {
     this.globalAbortController = new AbortController();
     this.ws = getConnection(
       {
-        onopen: (event) => {
+        onopen: async (event) => {
           this.lastTime = new Date().getTime();
           this.initServerAgent();
-          initContextMenu(this, this.serverInfo.res.armies, this.rootEl);
+          this.destroyContextMenu = await initContextMenu(this, this.serverInfo.res.armies, this.rootEl);
         },
         onreconnect: () => {
           this.objs.forEach((obj) => {
@@ -1147,5 +1147,7 @@ Table info (<span id='durationInfo'></span></span>):
       if (el) el.destroy();
     });
     this.rootEl.empty();
+    this.ws.terminate();
+    this.destroyContextMenu?.();
   }
 }

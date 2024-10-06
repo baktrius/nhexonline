@@ -287,6 +287,7 @@ export default async function initContextMenu(game, armies, rootEl) {
       items: Object.fromEntries(links.map((link, index) => ["open-" + index, { name: link.name }])),
     };
   }
+  // TODO remove global selector
   const config = optimizeContextMenu({
     selector: "#table",
     callback: (key, options) =>
@@ -307,4 +308,9 @@ export default async function initContextMenu(game, armies, rootEl) {
       contextMenuY = event.originalEvent.pageY;
     }
   });
+
+  return () => {
+    $.contextMenu("destroy", "#table");
+    $.contextMenu("destroy", ".obj");
+  }
 }
