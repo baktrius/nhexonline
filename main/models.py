@@ -90,6 +90,9 @@ class NamedInvitation(models.Model):
     class Meta:
         unique_together = ["user", "chair"]
 
+    def has_read_permission(self, user):
+        return self.user == user or self.has_write_permission(user)
+
     def has_write_permission(self, user):
         return self.chair.has_write_permission(user)
 

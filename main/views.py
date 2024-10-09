@@ -570,7 +570,7 @@ def link_invitation_play(request, pk):
     return render(
         request,
         "main/play.html",
-        {"table": chair.table, "roleRequest": {"linkInvitation": pk}},
+        {"table": chair.table, "roleRequest": {"role": chair.get_role()}},
     )
 
 
@@ -588,7 +588,7 @@ def named_invitation_play(request, invitation):
         "main/play.html",
         {
             "table": invitation.chair.table,
-            "roleRequest": {"namedInvitation": invitation.pk},
+            "roleRequest": {"role": invitation.chair.get_role()},
         },
     )
 
