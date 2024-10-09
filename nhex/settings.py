@@ -169,3 +169,7 @@ INTERNAL_TSS_URL = "http://localhost:3001"
 # Table sync server URL from users perspective
 TSS_URL = "http://localhost:3001"
 TSS_WS_URL = "ws://localhost:3001"
+
+# Main server URL from perspective of app users (to be used for constructing copy links)
+# This configuration can be omitted and then copy link will be constructed based on requests
+# MAIN_SERVER_URL = "http://localhost:8000"

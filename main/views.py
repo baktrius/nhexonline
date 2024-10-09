@@ -162,13 +162,19 @@ def tables(request):
     return render(request, "main/tables.html", context)
 
 
+def get_base_uri(request):
+    if hasattr(settings, "MAIN_SERVER_URL"):
+        return settings.MAIN_SERVER_URL
+    return request.build_absolute_uri("/")[:-1]
+
+
 @only_GET
 @obj_view(Table)
 def tableDetails(request, table):
     context = {
         "table": table,
         "nick": get_user_suggested_nick(request.user),
-        "base_uri": request.build_absolute_uri("/")[:-1],
+        "base_uri": get_base_uri(request),
     }
     return render(request, "main/tableDetails.html", context)
 
@@ -516,7 +522,7 @@ def invitations(request, table):
         {
             "form": form,
             "table": table,
-            "base_uri": request.build_absolute_uri("/")[:-1],
+            "base_uri": get_base_uri(request),
         },
     )
 
