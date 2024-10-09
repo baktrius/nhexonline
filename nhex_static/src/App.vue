@@ -1,27 +1,20 @@
 <template>
-  <RouterLink to="/" style="text-decoration: none">
-    <h1 class="mb-4">Nhex static</h1>
-  </RouterLink>
-  <div v-if="loading">
-    <v-progress-circular color="primary" indeterminate></v-progress-circular>
-  </div>
-  <RouterView v-else />
+  <v-progress-circular color="primary" indeterminate v-if="loading && showLoader"></v-progress-circular>
+  <RouterView v-if="!loading" />
 </template>
 
 <script setup>
-import { RouterLink } from "vue-router";
+import { ref, onMounted } from "vue";
 import { useServerInfo } from "./composables/useServerInfo";
 
 const { loading, error, fetchServerInfo } = useServerInfo();
+const showLoader = ref(false);
+
+onMounted(() => {
+  setTimeout(() => {
+    showLoader.value = true;
+  }, 200);
+});
 
 fetchServerInfo();
 </script>
-
-<style scoped>
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-  cursor: pointer;
-  color: white;
-}
-</style>

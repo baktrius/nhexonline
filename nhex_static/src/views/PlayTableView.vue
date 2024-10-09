@@ -1,7 +1,11 @@
 <template>
-  <div style="width: 800px; height: 600px">
-    <TableClient :tableId="tableId" :serverInfo="serverInfo" :roleRequest="{ role: 'player' }" :conf="conf" />
-  </div>
+  <TableClient
+    :tableId="tableId"
+    :serverInfo="serverInfo"
+    :roleRequest="{ role: 'player' }"
+    :conf="conf"
+    style="flex-grow: 1; width: 100%; height: 0"
+  />
 </template>
 <script setup>
 import TableClient from "@/components/TableClient.vue";

@@ -29,5 +29,5 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <div ref="wrapper" style="width: 100%; height: 100%"></div>
+  <div ref="wrapper"></div>
 </template>
