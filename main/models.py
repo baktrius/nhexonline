@@ -243,7 +243,7 @@ class Token(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100)
     multiplicity = models.PositiveSmallIntegerField(
-        default=1, validators=[MaxValueValidator(35), MinValueValidator(1)]
+        default=1, validators=[MaxValueValidator(35)]
     )
     army = models.ForeignKey(Army, on_delete=models.CASCADE)
     front_image = models.ForeignKey(Resource, on_delete=models.CASCADE)
