@@ -152,9 +152,7 @@ class Command(BaseCommand):
             if None in [
                 name,
                 img_name,
-                rect,
                 back_img_name,
-                back_img_rect,
                 quantity,
             ]:
                 raise CommandError("Token info contains missing values.")
