@@ -2,6 +2,7 @@ import functools
 import json
 from pathlib import Path
 from random import choice
+from django import forms
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django.forms import modelform_factory
@@ -110,9 +111,43 @@ def prep_form(request, klass, *args, **kwargs):
     return klass(request.POST if request.method == "POST" else None, *args, **kwargs)
 
 
+def generate_random_table_name():
+    colors = [
+        "Red",
+        "Blue",
+        "Green",
+        "Yellow",
+        "Black",
+        "White",
+        "Purple",
+        "Orange",
+        "Pink",
+        "Brown",
+    ]
+    materials = [
+        "Wooden",
+        "Glass",
+        "Metallic",
+        "Marble",
+        "Concrete",
+        "Bamboo",
+        "Plastic",
+        "Granite",
+        "Acrylic",
+    ]
+
+    return f"{choice(colors)} {choice(materials)} Table"
+
+
 @only_GET
 def index(request):
-    return render(request, "main/index.html")
+    form = prep_form(request, AddTableForm)
+    form.fields["name"].initial = generate_random_table_name()
+    form.fields["add_chair_for_players"].widget = forms.HiddenInput()
+    form.fields["generate_join_link_for_players"].widget = forms.HiddenInput()
+    form.fields["add_chair_for_spectators"].widget = forms.HiddenInput()
+    form.fields["generate_join_link_for_spectators"].widget = forms.HiddenInput()
+    return render(request, "main/index.html", {"form": form})
 
 
 @GET_or_POST
