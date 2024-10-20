@@ -662,7 +662,12 @@ Table info (<span id='durationInfo'></span></span>):
           this.getArmyTime = 0;
           // if (keyCode == "KeyW")
           //   this.server.requestUtility("common/wound", pos.left, pos.top);
-        } else if (army !== undefined) {
+        } else if (keyCode == "Equal")
+          this.transformable.scale(1.1, this.mouseX, this.mouseY);
+        else if (keyCode == "Minus")
+          this.transformable.scale(0.9, this.mouseX, this.mouseY);
+        else if (keyCode == "KeyG") this.getArmyTime = event.timeStamp;
+        else if (army !== undefined) {
           this.requestArmy(army, pos.left, pos.top);
         } else if (emote !== undefined) {
           this.server.requestEmote(
@@ -670,17 +675,13 @@ Table info (<span id='durationInfo'></span></span>):
             pos.left,
             pos.top,
           );
-        } else if (keyCode == "Equal")
-          this.transformable.scale(1.1, this.mouseX, this.mouseY);
-        else if (keyCode == "Minus")
-          this.transformable.scale(0.9, this.mouseX, this.mouseY);
-        else if (keyCode == "KeyG") this.getArmyTime = event.timeStamp;
-        else if (this.selectedObjs.size > 0) {
+        } else if (this.selectedObjs.size > 0) {
           this.selectedObjs.forEach((el) =>
             el.objEl.triggerHandler("keydown", keyCode),
           );
-        } else if (this.globalFocus)
+        } else if (this.globalFocus) {
           this.globalFocus.triggerHandler("keydown", keyCode);
+        }
       }
     }
     if (keyCode == "Enter") {
