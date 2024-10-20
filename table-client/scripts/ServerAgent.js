@@ -90,10 +90,9 @@ export default class ServerAgent {
   request() {
     this.sendMes({ request: true });
   }
-  async requestArmySpawner(name, left, top, game) {
-    const data = await game.getArmyRes(name);
+  requestArmySpawner(name, data, left, top, skipSpawner) {
     this.sendMes({
-      getArmySpawner: { name, left, top, data },
+      getArmySpawner: { name, left, top, data, skipSpawner },
       request: true,
     });
   }

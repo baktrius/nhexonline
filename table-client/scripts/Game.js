@@ -146,10 +146,10 @@ class Game {
     this.globalAbortController = new AbortController();
     this.ws = getConnection(
       {
-        onopen: async (event) => {
+        onopen: (event) => {
           this.lastTime = new Date().getTime();
           this.initServerAgent();
-          this.destroyContextMenu = await initContextMenu(this, this.serverInfo.res.armies, this.rootEl);
+          this.destroyContextMenu = initContextMenu(this, this.serverInfo.res.armies, this.rootEl);
         },
         onreconnect: () => {
           this.objs.forEach((obj) => {
@@ -1149,5 +1149,14 @@ Table info (<span id='durationInfo'></span></span>):
     this.rootEl.empty();
     this.ws.terminate();
     this.destroyContextMenu?.();
+  }
+  async requestArmy(army, left, top) {
+    const armyData = await this.getArmyRes(army.id);
+    if (armyData === undefined) {
+      this.warnInvalidRes();
+      return;
+    }
+    const skipSpawner = armyData.tokens.length == 0;
+    this.server.requestArmySpawner(army.id, armyData, left, top, skipSpawner);
   }
 }

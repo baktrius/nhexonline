@@ -123,7 +123,7 @@ function partition(arr, fn) {
 
 let contextMenuX = 0;
 let contextMenuY = 0;
-export default async function initContextMenu(game, armies, rootEl) {
+export default function initContextMenu(game, armies, rootEl) {
   const rotateDisFunc = function (key, opt) {
     return (
       game.isSpectator() ||
@@ -187,7 +187,7 @@ export default async function initContextMenu(game, armies, rootEl) {
       name: army.name,
       callback: () => {
         const pos = getPos();
-        game.server.requestArmySpawner(army.id, pos.left, pos.top, game);
+        game.requestArmy(army, pos.left, pos.top);
       }
     }]))
   }
@@ -212,36 +212,6 @@ export default async function initContextMenu(game, armies, rootEl) {
     genArmiesEntries(officialArmies),
   );
 
-  async function genUtilityEntry(armyInfo) {
-    function getUnitMapper(marker) {
-      return function (unit) {
-        return [`getUtility-${armyInfo.id}-${unit.id}`, {
-          name: unit.name,
-          callback: (itemKey, opt) => {
-            const pos = getPos();
-            const obj = {
-              left: pos.left,
-              top: pos.top,
-              res: `armies/${armyInfo.id}/${unit.name}`,
-            };
-            if (!marker) Object.assign(obj, { flipped: false, angle: 0 });
-            game.server.requestUtility(obj);
-          },
-        }]
-      }
-    }
-    const tokenMapper = getUnitMapper(false);
-    const markerMapper = getUnitMapper(true);
-    const army = await game.getArmyRes(armyInfo.id);
-    return ["getUtility-" + army.id, {
-      name: army.name,
-      items: Object.fromEntries([
-        ...army.tokens.map(tokenMapper),
-        ...army.bases.map(tokenMapper),
-        ...army.markers.map(markerMapper)]),
-    }]
-  }
-
   const items = {
     getArmy: {
       name: "Get army",
@@ -250,7 +220,7 @@ export default async function initContextMenu(game, armies, rootEl) {
     },
     getUtility: {
       name: "Get utility",
-      items: Object.fromEntries(await Promise.all(utilityArmies.map(genUtilityEntry))),
+      items: genArmiesEntries(utilityArmies),
       disabled: () => game.isSpectator(),
     },
     getEmoji: {

@@ -196,33 +196,35 @@ export default (class Table {
   }
   _addArmy(options, hist, method, data) {
     const info = data;
+    const addInfo = [];
+    const secretsInfo = [];
 
     if (info.defBackImg === undefined) {
       info.defBackImg = "b.jpg";
     }
 
     const prefix = `armies/${options.name}/`;
-    const tokens = this.safeRepeat(
-      info.tokens,
-      (el) => prefix + el.name,
-      ARMY_TOKENS_LIMIT,
-      errToMany("tokens"),
-    );
+    const skipSpawner = options.skipSpawner || info.tokens.length == 0;
+    if (!skipSpawner) {
+      const tokens = this.safeRepeat(
+        info.tokens,
+        (el) => prefix + el.name,
+        ARMY_TOKENS_LIMIT,
+        errToMany("tokens"),
+      );
 
-    if (options.removedTokens !== undefined) {
-      options.removedTokens.forEach((el) => {
-        const index = tokens.findIndex((token) => token == el);
-        if (index == -1)
-          this.warnAndRaise(
-            "Error in army config: it has invalid removedTokens param",
-          );
-        tokens.splice(index, 1);
-      });
+      if (options.removedTokens !== undefined) {
+        options.removedTokens.forEach((el) => {
+          const index = tokens.findIndex((token) => token == el);
+          if (index == -1)
+            this.warnAndRaise(
+              "Error in army config: it has invalid removedTokens param",
+            );
+          tokens.splice(index, 1);
+        });
+      }
+      method(tokens, addInfo);
     }
-
-    const addInfo = [];
-    const secretsInfo = [];
-    method(tokens, addInfo);
 
     const identity = (el) => el;
     this.safeRepeat(info.bases, identity, 10, errToMany("bases")).forEach(
@@ -248,13 +250,17 @@ export default (class Table {
       if (markers.some((el) => el.secret)) {
         shuffle(markers);
       }
+      let markersTop = options.top;
+      if (!skipSpawner || info.bases.length > 0) {
+        markersTop += 120;
+      }
       markers.forEach((el, k) => {
         const row = Math.floor(k / 8);
         this.addToken(
           prefix + el.name,
           options.left +
           ((k % 8) - Math.min(markers.length - 1 - row, 7) / 2) * 40,
-          options.top + 120 + row * 60,
+          markersTop + row * 60,
           addInfo,
           el.secret ? prefix + el.secret : undefined,
           secretsInfo,
