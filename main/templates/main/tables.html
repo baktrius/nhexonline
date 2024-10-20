@@ -17,16 +17,18 @@
 </ul>
 {% /section %}
 {% #section title="My tables" %}
-<ul class="list-disc pl-4">
+{% if tables %}
+<ul>
   {% for table in tables_page %}
-  <li>
+  <li class="list-disc ml-4">
     <a class="lnk" href="{% url "main:table_details" pk=table.id %}">{{table.name}}</a>
   </li>
-  {% empty %}
-  <li>No tables to show. Use form below to create some.</li>
   {% endfor %}
 </ul>
 {% #pagination page=tables_page %}{% /pagination %}
+{% else %}
+No tables to show. Use form below to create some.
+{% endif %}
 {% /section %}
 {% endif %}
 {% #section title="Create Table" %}
