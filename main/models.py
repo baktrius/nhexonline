@@ -55,6 +55,15 @@ class Table(models.Model):
         return self.chair_set.filter(link_invitation__isnull=False)
 
 
+class ChairManager(models.Manager):
+    def create(self, enable_link_invitation=False, **kwargs):
+        chair = super().create(**kwargs)
+        if enable_link_invitation:
+            chair.enable_link_invitation()
+            chair.save()
+        return chair
+
+
 class Chair(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100)
@@ -63,6 +72,8 @@ class Chair(models.Model):
     KIND_CHOICES = [("p", "Player"), ("s", "Spectator")]
     kind = models.CharField(max_length=1, choices=KIND_CHOICES, default="p")
     link_invitation = models.URLField(null=True, blank=True)
+
+    objects = ChairManager()
 
     def __str__(self):
         return f"{self.name} chair"
@@ -75,6 +86,12 @@ class Chair(models.Model):
 
     def has_write_permission(self, user):
         return self.table.has_write_permission(user)
+
+    def enable_link_invitation(self):
+        self.link_invitation = generate(size=10)
+
+    def disable_link_invitation(self):
+        self.link_invitation = None
 
     def get_invitations_summary(self):
         return ",".join([i.user.username for i in self.namedinvitation_set.all()])

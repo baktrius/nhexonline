@@ -37,7 +37,6 @@ from .forms import (
 from django_htmx.http import trigger_client_event, HttpResponseClientRedirect
 from django.contrib.auth.decorators import login_required
 from http import HTTPStatus
-from nanoid import generate
 
 
 def redirect_to_login(request):
@@ -133,19 +132,30 @@ def tables(request):
                 settings.INTERNAL_TSS_URL + "/tables/",
                 data={"board": form.instance.board.id},
             ).json()["tableId"]
-            print(tableId)
             if tableId:
                 form.instance.id = tableId
                 table = form.save()
                 players_num = default(form.cleaned_data.get("add_chair_for_players"), 0)
                 if players_num > 0:
-                    table.chair_set.create(name="Players", arity=players_num, kind="p")
+                    table.chair_set.create(
+                        name="Players",
+                        arity=players_num,
+                        kind="p",
+                        enable_link_invitation=form.cleaned_data.get(
+                            "generate_join_link_for_players"
+                        ),
+                    )
                 spectators_num = default(
                     form.cleaned_data.get("add_chair_for_spectators"), 0
                 )
                 if spectators_num > 0:
                     table.chair_set.create(
-                        name="Spectators", arity=spectators_num, kind="s"
+                        name="Spectators",
+                        arity=spectators_num,
+                        kind="s",
+                        enable_link_invitation=form.cleaned_data.get(
+                            "generate_join_link_for_spectators"
+                        ),
                     )
                 return redirect_with_obj("main:table_details", table)
             else:
@@ -538,9 +548,9 @@ def invitation_delete(request, invitation):
 @obj_view(Chair.objects.select_related("table"), write_perm)
 def manage_link_invitation(request, chair):
     if request.POST.get("action") == "Enable":
-        chair.link_invitation = generate(size=10)
+        chair.enable_link_invitation()
     elif request.POST.get("action") == "Disable":
-        chair.link_invitation = None
+        chair.disable_link_invitation()
     else:
         return HttpResponse(status=HTTPStatus.BAD_REQUEST)
     chair.save()

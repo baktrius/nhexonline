@@ -18,6 +18,10 @@
   .inp {
     @apply w-full px-2 py-1 rounded mb-2;
   }
+  .frm input[type="checkbox"] {
+    float: right;
+    @apply mt-1 mr-1 rounded-sm;
+  }
 
   .imgRadio input[type="radio"]:focus + .imgLabel {
     outline: 2px solid #888;

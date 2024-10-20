@@ -139,6 +139,10 @@ class AddTableForm(forms.ModelForm):
     add_chair_for_spectators = forms.IntegerField(
         min_value=0, required=False, initial=0
     )
+    generate_join_link_for_players = forms.BooleanField(initial=True, required=False)
+    generate_join_link_for_spectators = forms.BooleanField(
+        initial=False, required=False
+    )
 
     board = forms.ModelChoiceField(
         queryset=Board.objects.order_by("defaultPriority").all(),
