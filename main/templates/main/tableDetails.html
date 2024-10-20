@@ -17,11 +17,41 @@ further reference but protect it from strangers.
 {% endif %}
 {% /section%}
 {% endif %}
-{% #section title="Play" %}
+{% #section title="Joining summary" %}
+<h3 class="text-xl">Active link invitations</h3>
+<ul>
+  {% for chair in table.get_chairs_with_link_invitation %}
+  <li class="border-gray-300 border-2 p-2 mt-2 rounded">
+    <h3 class="text-lg">
+      Link invitation for
+      {{chair}}
+    </h3>
+    {% #copyInput %}{{base_uri }}{% url "main:link_invitation" pk=chair.link_invitation %}{% /copyInput %}
+    <a href="{% url "main:link_invitation" pk=chair.link_invitation %}" class="btn">Follow</a>
+  </li>
+  {% empty %}
+  <li>No active links invitation. You can activate link invitations using management section below.</li>
+  {% endfor %}
+</ul>
+<h3 class="text-xl">Named invitations</h3>
+<ul>
+  {% for chair in table.get_chairs_with_existing_invitations %}
+  <li class="ml-6 list-disc">
+    for
+    {{chair.get_invitations_summary}}
+    to
+    {{chair}}
+  </li>
+  {% empty %}
+  <li>No named invitations. You can invite someone using management section below.</li>
+  {% endfor %}
+</ul>
+{% /section %}
+{% #section title="Play as owner" %}
 <form action="{% url "main:play" pk=table.pk %}" method="get" class="frm" hx-boost="false">
   <label for="id_nick">Visible nickname:</label>
   <input type="text" name="nick" placeholder="Enter your nickname" value="{{ nick }}" />
-  <input type="submit" value="Join as owner" class="btn" />
+  <input type="submit" value="Join" class="btn" />
 </form>
 {% /section %}
 {% #section title="Manage" %}

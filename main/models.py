@@ -48,6 +48,12 @@ class Table(models.Model):
         self.owner = user
         self.save()
 
+    def get_chairs_with_existing_invitations(self):
+        return self.chair_set.filter(namedinvitation__isnull=False)
+
+    def get_chairs_with_link_invitation(self):
+        return self.chair_set.filter(link_invitation__isnull=False)
+
 
 class Chair(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
@@ -70,6 +76,9 @@ class Chair(models.Model):
     def has_write_permission(self, user):
         return self.table.has_write_permission(user)
 
+    def get_invitations_summary(self):
+        return ",".join([i.user.username for i in self.namedinvitation_set.all()])
+
 
 class NamedInvitation(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
@@ -84,8 +93,11 @@ class NamedInvitation(models.Model):
 
     def __str__(self) -> str:
         return (
-            f"from {self.user.username} to {self.chair.table.name} as {self.chair.name}"
+            f"for {self.user.username} to {self.chair.table.name} as {self.chair.name}"
         )
+
+    def get_from_string(self):
+        return f"from {self.chair.table.owner.username} to {self.chair.table.name} as {self.chair.name}"
 
     class Meta:
         unique_together = ["user", "chair"]

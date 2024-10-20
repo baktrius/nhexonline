@@ -8,8 +8,8 @@
 {% #section title="Invitations" %}
 <ul>
   {% for invitation in invitations %}
-  <li>
-    <a class="lnk" href="{{invitation.get_absolute_url}}">{{invitation}}</a>
+  <li class="ml-6 list-disc">
+    <a class="lnk" href="{{invitation.get_absolute_url}}">{{invitation.get_from_string}}</a>
   </li>
   {% empty %}
   <li>No invitations to show.</li>
