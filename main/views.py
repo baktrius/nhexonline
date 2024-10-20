@@ -508,7 +508,9 @@ def board_info(request, pk):
 
 def get_server_info(user):
     armies = list(
-        Army.get_user_armies(user).values("id", "name", "custom", "private", "utility")
+        Army.get_user_armies(user).values(
+            "id", "name", "custom", "private", "utility", "keyshortcut"
+        )
     )
     emotes = [
         el.get_info()

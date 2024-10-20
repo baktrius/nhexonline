@@ -134,6 +134,7 @@ class Army(models.Model):
     private = models.BooleanField(default=True)
     readonly = models.BooleanField(default=False)
     utility = models.BooleanField(default=False)
+    keyshortcut = models.CharField(max_length=100, null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse("main:army_details", kwargs={"pk": self.pk})

@@ -184,7 +184,7 @@ export default function initContextMenu(game, armies, rootEl) {
 
   function genArmiesEntries(armies) {
     return Object.fromEntries(armies.map((army) => ["getArmy-" + army.id, {
-      name: army.name,
+      name: army.name + (army.keyshortcut ? ` (${army.keyshortcut})` : ""),
       callback: () => {
         const pos = getPos();
         game.requestArmy(army, pos.left, pos.top);

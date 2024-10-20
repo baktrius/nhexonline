@@ -653,6 +653,7 @@ Table info (<span id='durationInfo'></span></span>):
       else if (keyCode == "KeyY") this.server.requestRedo();
       if (!event.repeat) {
         const emote = this.serverInfo.res.emotes.find((el) => el?.keyshortcut == keyCode);
+        const army = this.serverInfo.res.armies.find((el) => el?.keyshortcut == keyCode);
         const pos = this.transformable.toPos({
           left: this.mouseX,
           top: this.mouseY,
@@ -661,6 +662,8 @@ Table info (<span id='durationInfo'></span></span>):
           this.getArmyTime = 0;
           // if (keyCode == "KeyW")
           //   this.server.requestUtility("common/wound", pos.left, pos.top);
+        } else if (army !== undefined) {
+          this.requestArmy(army, pos.left, pos.top);
         } else if (emote !== undefined) {
           this.server.requestEmote(
             emote,
