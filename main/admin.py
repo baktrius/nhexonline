@@ -12,7 +12,8 @@ class TokenInline(admin.TabularInline):
     }
 
 
-class ArmyAdmin(admin.ModelAdmin):
+@admin.register(models.Army)
+class ArmyAdmin(SortableAdminMixin, admin.ModelAdmin):
     inlines = [TokenInline]
 
 
@@ -31,7 +32,6 @@ class SortableLinkAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 admin.site.register(models.Table)
 admin.site.register(models.Resource)
-admin.site.register(models.Army, ArmyAdmin)
 admin.site.register(models.PublicationRequest)
 admin.site.register(models.Board)
 admin.site.register(models.Emote, EmoteAdmin)

@@ -135,6 +135,9 @@ class Army(models.Model):
     readonly = models.BooleanField(default=False)
     utility = models.BooleanField(default=False)
     keyshortcut = models.CharField(max_length=100, null=True, blank=True)
+    my_order = models.PositiveIntegerField(
+        default=0, blank=False, null=False, db_index=True
+    )
 
     def get_absolute_url(self):
         return reverse("main:army_details", kwargs={"pk": self.pk})
@@ -218,6 +221,7 @@ class Army(models.Model):
 
     class Meta:
         verbose_name_plural = "armies"
+        ordering = ["my_order"]
 
 
 class PublicationRequest(models.Model):
