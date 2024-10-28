@@ -372,9 +372,15 @@ class Link(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100)
     url = models.URLField()
+    my_order = models.PositiveSmallIntegerField(
+        default=0, blank=False, null=False, db_index=True
+    )
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ["my_order"]
 
 
 class Emote(models.Model):

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "slippers",
     "django_htmx",
     "template_partials",
+    "adminsortable2",
 ]
 
 TAILWIND_APP_NAME = "theme"
