@@ -62,17 +62,33 @@ class AddResourcesForm(forms.Form):
 
 
 class RadioImageSelect(forms.RadioSelect):
-    template_name = "main/image_radio.html"
+    option_template_name = "main/image_radio_option.html"
 
-    def get_context(
-        self, name: str, value: Any, attrs: dict[str, Any] | None
-    ) -> dict[str, Any]:
-        context = super().get_context(name, value, attrs)
-        context.update(self.extra_context)
-        return context
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        attrs["class"] = "absolute w-0 h-0 opacity-0"
+        result = super().create_option(
+            name, value, label.name, selected, index, subindex=subindex, attrs=attrs
+        )
+        result["img_url"] = label.file.url
+        return result
+
+    def get_context(self, name, value, attrs):
+        attrs["class"] = (
+            "border-gray-500 border-[1px] flex rounded imgRadio flex-wrap mb-2 items-center"
+        )
+        return super().get_context(name, value, attrs)
 
 
 class AddTokenForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        resources = kwargs.pop("resources", None)
+        super().__init__(*args, **kwargs)
+        if resources:
+            self.fields["front_image"].widget.choices = resources
+            self.fields["back_image"].widget.choices = resources
+
     class Meta:
         model = Token
         fields = ["kind", "name", "multiplicity", "front_image", "back_image"]

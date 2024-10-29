@@ -1,0 +1,8 @@
+{% if widget.wrap_label %}<label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>{% endif %}
+  {% include "django/forms/widgets/input.html" %}
+    <img
+      src="{{ option.img_url }}"
+      alt="{{ option.label }}"
+      class="w-12 inline-block cursor-pointer p-1 m-1 rounded imgLabel"
+    />
+{% if widget.wrap_label %}</label>{% endif %}

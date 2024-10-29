@@ -219,6 +219,9 @@ class Army(models.Model):
             "markers": list(map(Token.get_data, markers)),
         }
 
+    def get_resource_choices(self):
+        return [(res.id, res) for res in self.resource_set.all()]
+
     class Meta:
         verbose_name_plural = "armies"
         ordering = ["my_order"]

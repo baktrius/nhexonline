@@ -341,28 +341,19 @@ def try_parse_int(s: str) -> int | None:
         return None
 
 
-def add_resources_context(form, field_name, resources):
-    form.fields[field_name].widget.extra_context = {
-        "resources": resources,
-        "selected": try_parse_int(form[field_name].value()),
-    }
-
-
 @GET_or_POST
 @login_required
 def tokens(request, pk):
     army = get_object_or_404(Army, pk=pk)
     if army.owner != request.user:
         return HttpResponse(status=HTTPStatus.FORBIDDEN)
-    form = prep_form(request, AddTokenForm)
+    resources = army.get_resource_choices()
+    form = prep_form(request, AddTokenForm, resources=resources)
     if request.method == "POST":
         form.instance.army = army
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(request.path)
-    resources = army.resource_set.all()
-    add_resources_context(form, "front_image", resources)
-    add_resources_context(form, "back_image", resources)
     tokens = army.token_set.select_related("front_image", "back_image").order_by("kind")
     context = {
         "army": army,
@@ -385,14 +376,12 @@ def tokenDelete(request, token):
 @obj_view(Token.objects.select_related("army"))
 def tokenDetails(request, token):
     army = token.army
-    form = prep_form(request, AddTokenForm, instance=token)
+    resources = army.get_resource_choices()
+    form = prep_form(request, AddTokenForm, instance=token, resources=resources)
     if request.method == "POST":
         if form.is_valid():
             form.save()
             return redirect_with_obj("main:tokens", token.army)
-    resources = army.resource_set.all()
-    add_resources_context(form, "front_image", resources)
-    add_resources_context(form, "back_image", resources)
     context = {
         "army": army,
         "token": token,
