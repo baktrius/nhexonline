@@ -15,6 +15,9 @@ class TokenInline(admin.TabularInline):
 @admin.register(models.Army)
 class ArmyAdmin(SortableAdminMixin, admin.ModelAdmin):
     inlines = [TokenInline]
+    list_display = ("name", "owner", "custom", "private", "readonly", "utility")
+    search_fields = ("name", "owner__username")
+    list_filter = ("custom", "private", "readonly", "utility")
 
 
 class EmoteAlternativeImageInline(admin.TabularInline):
