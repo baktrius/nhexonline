@@ -413,10 +413,6 @@ class Game {
     }
     this.server.greetServer(this.nick, this.tableId, this.roleRequest);
   }
-  randomArmy() {
-    const armies = this.serverInfo.res.armies;
-    return armies[Math.floor(Math.random() * armies.length)].id;
-  }
   async getRelativeRotate() {
     return (await this.getBoardRes(this.board))?.relativeRotate ?? 0;
   }

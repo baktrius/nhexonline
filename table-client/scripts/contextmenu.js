@@ -61,11 +61,8 @@ function globalMenuCallback(key, options, menuPos, game) {
   else if (key == "undo") game.server.requestUndo();
   else if (key == "redo") game.server.requestRedo();
   else {
-    const pos = game.transformable.toPos(menuPos);
     const tokens = key.split("-");
-    if (tokens[0] == "getRandomArmy")
-      game.server.requestArmySpawner(game.randomArmy(), pos.left, pos.top, game);
-    else if (tokens[0] == "open") {
+    if (tokens[0] == "open") {
       openInNewTab(game.serverInfo.res.links[parseInt(tokens[1])].url);
     }
   }
@@ -192,32 +189,28 @@ export default function initContextMenu(game, armies, rootEl) {
     }]))
   }
 
-  function subArmiesMenu(armies, key, name) {
-    if (armies.length === 0) return {};
-    return {
-      key: {
-        name: name,
-        items: genArmiesEntries(armies),
+  function genArmiesMenu(armies, name) {
+    let items = genArmiesEntries(armies);
+    if (armies.length > 0) items = Object.assign({
+      getRandomArmy: {
+        name: "Random", callback: () => {
+          const pos = getPos();
+          const army = armies[Math.floor(Math.random() * armies.length)];
+          game.requestArmy(army, pos.left, pos.top);
+        }
       }
-    }
+    }, items);
+    return { name, items, disabled: () => game.isSpectator() }
   }
 
   const [utilityArmies, commonArmies] = partition(armies, (army) => army.utility);
   const [privateArmies, publicArmies] = partition(commonArmies, (army) => army.private);
   const [customArmies, officialArmies] = partition(publicArmies, (army) => army.custom);
-  const armiesMenu = Object.assign(
-    armies.length > 0 ? { getRandomArmy: { name: "Random" } } : {},
-    subArmiesMenu(customArmies, "getCustomArmy", "Custom"),
-    subArmiesMenu(privateArmies, "getPrivateArmy", "Private"),
-    genArmiesEntries(officialArmies),
-  );
 
   const items = {
-    getArmy: {
-      name: "Get army",
-      items: armiesMenu,
-      disabled: () => game.isSpectator(),
-    },
+    getArmy: genArmiesMenu(officialArmies, "Get army"),
+    getCustomArmy: genArmiesMenu(customArmies, "Get custom army"),
+    getPrivateArmy: genArmiesMenu(privateArmies, "Get private army"),
     getUtility: {
       name: "Get utility",
       items: genArmiesEntries(utilityArmies),
