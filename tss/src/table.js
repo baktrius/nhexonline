@@ -14,6 +14,13 @@ const ARMY_TOKENS_LIMIT = 100;
 
 const TABLE_MAX_NUMBER_OF_OBJS = 500;
 
+class ActionError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ActionError";
+  }
+}
+
 const errToMany = (type) => `'Error in army config: it has to many ${type}.'`;
 export default (class Table {
   constructor(id, quality, tableStorage, storage, onChangeDescription, onRemove, mainAgent) {
