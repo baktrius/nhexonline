@@ -191,7 +191,7 @@ export default function initContextMenu(game, armies, rootEl) {
 
   function genArmiesMenu(armies, name) {
     let items = genArmiesEntries(armies);
-    if (armies.length > 0) items = Object.assign({
+    if (armies.length > 1) items = Object.assign({
       getRandomArmy: {
         name: "Random", callback: () => {
           const pos = getPos();
