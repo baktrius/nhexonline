@@ -19,11 +19,23 @@
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
   >
     {% block all %}
-    {% #nav user=user csrf_token=csrf_token %}
-    <div class="text-gray-200">{% block breadcrumbs %}{% endblock breadcrumbs %}</div>
-    {% /nav %}
-    <div class="flex justify-center flex-row">
-      <div class="max-w-[1000px] grow">{% block content %}{% endblock content %}</div>
+    <div class="flex min-h-dvh justify-between flex-col">
+      {% #nav user=user csrf_token=csrf_token %}
+      <div class="text-gray-200">{% block breadcrumbs %}{% endblock breadcrumbs %}</div>
+      {% /nav %}
+      <div class="flex justify-center flex-row">
+        <div class="max-w-[1000px] grow">{% block content %}{% endblock content %}</div>
+      </div>
+      <div class="flex-grow"></div>
+      {% if footer_links %}
+      <footer
+        class="p-1 w-full border-t-2 border-gray-400 bg-black pt-1 text-gray-200 flex justify-center flex-wrap underline"
+      >
+        {% for link in footer_links %}
+        <a class="px-4" href="{{ link.url }}">{{ link.name }}</a>
+        {% endfor %}
+      </footer>
+      {% endif %}
     </div>
     {% endblock all %}
   </body>

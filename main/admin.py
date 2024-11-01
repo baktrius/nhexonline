@@ -28,6 +28,11 @@ class EmoteAdmin(admin.ModelAdmin):
     inlines = [EmoteAlternativeImageInline]
 
 
+@admin.register(models.FooterLink)
+class SortableFooterLinkAdmin(SortableAdminMixin, admin.ModelAdmin):
+    pass
+
+
 @admin.register(models.Link)
 class SortableLinkAdmin(SortableAdminMixin, admin.ModelAdmin):
     pass

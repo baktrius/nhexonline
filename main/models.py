@@ -11,6 +11,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
 from django.contrib.auth.models import AnonymousUser
 from nanoid import generate
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 
 class NanoIdField(models.CharField):
@@ -375,7 +377,7 @@ class Board(models.Model):
         return res
 
 
-class Link(models.Model):
+class BaseLink(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100)
     url = models.URLField()
@@ -387,7 +389,27 @@ class Link(models.Model):
         return self.name
 
     class Meta:
+        abstract = True
         ordering = ["my_order"]
+
+
+class Link(BaseLink):
+    pass
+
+
+class FooterLink(BaseLink):
+    url = models.CharField(max_length=200)
+
+    def clean(self):
+        url = self.url
+        if url.startswith("/"):
+            url = "http://example.com" + url
+        validate = URLValidator()
+        try:
+            validate(url)
+        except ValidationError:
+            raise ValidationError("Invalid URL or relative path")
+        super().clean()
 
 
 class Emote(models.Model):
