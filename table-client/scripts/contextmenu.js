@@ -78,9 +78,9 @@ function optimizeContextMenu(config) {
   if (config.items === undefined) return config;
   // optimize submenus recursively
   let entries = Object.entries(config.items);
-  entries = entries.map(([k, v], i) => [k, optimizeContextMenu(v)])
+  entries = entries.map(([k, v]) => [k, optimizeContextMenu(v)])
   // Remove empty submenus
-  entries = entries.filter((el) => el?.items?.length !== 0)
+  entries = entries.filter((el) => !el[1].items || Object.keys(el[1].items).length !== 0)
   // Split long submenus
   entries = entries.map(([key, el]) => {
     const entries = Object.entries(el?.items ?? {});
