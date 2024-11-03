@@ -162,6 +162,14 @@ class Army(models.Model):
         rmtree(army_media_path, ignore_errors=True)
         return res
 
+    def save(self, *args, **kwargs):
+        if not self.my_order:
+            max_order = self.__class__.objects.aggregate(models.Max("my_order"))[
+                "my_order__max"
+            ]
+            self.my_order = (max_order or 0) + 1
+        super().save(*args, **kwargs)
+
     def clone(self, new_name):
         new_army = Army.objects.create(
             name=new_name,
@@ -384,6 +392,14 @@ class BaseLink(models.Model):
     my_order = models.PositiveSmallIntegerField(
         default=0, blank=False, null=False, db_index=True
     )
+
+    def save(self, *args, **kwargs):
+        if not self.my_order:
+            max_order = self.__class__.objects.aggregate(models.Max("my_order"))[
+                "my_order__max"
+            ]
+            self.my_order = (max_order or 0) + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
