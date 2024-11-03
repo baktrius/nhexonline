@@ -1,0 +1,16 @@
+[project]
+authors = [
+    {name = "Krzysztof Rogowski", email = "krzysztor99@gmail.com"},
+]
+dependencies = ["Django==5.0.3", "slippers==0.6.2", "django-template-partials==23.4", "django-admin-sortable2==2.2.3", "django-htmx==1.17.3", "django-debug-toolbar==4.3.0", "django-browser-reload==1.12.1", "django-tailwind==3.8.0", "django-vite==3.0.3", "nanoid==2.0.0", "requests==2.31.0"]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+
+[dependency-groups]
+dev = ["pre-commit>=4.0.1"]

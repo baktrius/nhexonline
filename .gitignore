@@ -11,3 +11,4 @@ table_logs.jsonl
 .coverage
 coverage.xml
 static_resources/
+.pdm-python
