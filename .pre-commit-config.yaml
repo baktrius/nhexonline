@@ -23,3 +23,4 @@ repos:
       - id: pdm-export
         args: ['-o', 'requirements.txt', '--without-hashes']
         files: ^pdm\.lock$
+      - id: pdm-lock-check
