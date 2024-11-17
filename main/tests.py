@@ -350,7 +350,7 @@ class InvitationsTest(TestCase):
         res = self.client.get(f"/tables/")
         # check that link to invitation is present in the response
         self.assertContains(res, f'href="{invitation.get_absolute_url()}"')
-        self.assertContains(res, str(invitation))
+        self.assertContains(res, invitation.get_from_string())
 
     def testPlayerCannotSeeOthersInvitation(self):
         # Create invitation
