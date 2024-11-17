@@ -336,7 +336,9 @@ class InvitationsTest(TestCase):
         super().setUpTestData()
         cls.owner = create_user(username="owner", password="owner")
         cls.table = Table.objects.create(name="table", owner=cls.owner)
-        cls.chair = Chair.objects.create(table=cls.table, arity=1, kind="p")
+        cls.chair = Chair.objects.create(
+            table=cls.table, arity=1, kind="p", name="Players"
+        )
         cls.player1 = create_user(username="player1", password="player1")
         cls.player2 = create_user(username="player2", password="player2")
 
@@ -391,6 +393,13 @@ class InvitationsTest(TestCase):
             res, f"Invitation for {self.player1} to {self.chair} already exists."
         )
         self.assertEqual(self.chair.namedinvitation_set.count(), 1)
+
+    def testJoiningSummaryListsNamedInvitations(self):
+        self.chair.namedinvitation_set.create(user=self.player1)
+        self.chair.namedinvitation_set.create(user=self.player2)
+        self.client.login(username="owner", password="owner")
+        res = self.client.get(f"/tables/{self.table.pk}/")
+        self.assertContains(res, "for player1, player2 to Players chair", count=1)
 
 
 class InvitationsCheckingTest(TestCase):

@@ -51,7 +51,7 @@ class Table(models.Model):
         self.save()
 
     def get_chairs_with_existing_invitations(self):
-        return self.chair_set.filter(namedinvitation__isnull=False)
+        return self.chair_set.filter(namedinvitation__isnull=False).distinct()
 
     def get_chairs_with_link_invitation(self):
         return self.chair_set.filter(link_invitation__isnull=False)
@@ -96,7 +96,7 @@ class Chair(models.Model):
         self.link_invitation = None
 
     def get_invitations_summary(self):
-        return ",".join([i.user.username for i in self.namedinvitation_set.all()])
+        return ", ".join([i.user.username for i in self.namedinvitation_set.all()])
 
 
 class NamedInvitation(models.Model):

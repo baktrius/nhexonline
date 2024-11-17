@@ -37,10 +37,7 @@ further reference but protect it from strangers.
 <ul>
   {% for chair in table.get_chairs_with_existing_invitations %}
   <li class="ml-6 list-disc">
-    for
-    {{chair.get_invitations_summary}}
-    to
-    {{chair}}
+    for {{chair.get_invitations_summary}} to {{chair}}
   </li>
   {% empty %}
   <li>No named invitations. You can invite someone using management section below.</li>
