@@ -22,7 +22,7 @@ def create_user(username: str, password: str):
 # Below tests aren't independent, because they share the same upload directory.
 @override_settings(MEDIA_ROOT=(TEST_DIR + "/media"))
 class ResourceUploading(TestCase):
-    SMALL_IMG = "test_files/img1.png"
+    SMALL_IMG = "main/test_files/img1.png"
 
     @classmethod
     def setUpTestData(cls):
@@ -70,7 +70,7 @@ class ResourceUploading(TestCase):
 
     def test_upload_file_exceeding_size_limit(self):
         self.client.login(username="user", password="user")
-        with open("test_files/big_img.png", "rb") as file:
+        with open("main/test_files/big_img.png", "rb") as file:
             response = self.client.post(
                 f"/armies/{self.army.pk}/resources/", {"file_field": file}
             )
@@ -138,7 +138,7 @@ class CorruptedResource(TestCase):
 
 @override_settings(MEDIA_ROOT=(TEST_DIR + "/media"))
 class ResourceCleanup(TransactionTestCase):
-    SMALL_IMG = "test_files/img1.png"
+    SMALL_IMG = "main/test_files/img1.png"
 
     def setUp(self):
         self.user = create_user(username="user", password="user")
