@@ -4,6 +4,12 @@
 <a href="{% url "main:tokens" pk=army.pk %}" class="navBtn">Tokens</a>
 {% endblock breadcrumbs %}
 {% block content %}
+{% if not resources %}
+{% #section title="Missing resources info" %}
+You can't configure any tokens until you assign some resources to this army.
+Go to <a href="{% url "main:resources" pk=army.pk %}" class="lnk">resources</a> section to add some.
+{% /section%}
+{% endif %}
 {% #section title="Tokens list" %}
 <style>
   .selection {

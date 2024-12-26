@@ -358,6 +358,7 @@ def tokens(request, pk):
     context = {
         "army": army,
         "tokens": tokens.all(),
+        "resources": resources,
         "form": form,
     }
     return render(request, "main/tokens.html", context)

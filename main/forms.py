@@ -85,7 +85,7 @@ class AddTokenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         resources = kwargs.pop("resources", None)
         super().__init__(*args, **kwargs)
-        if resources:
+        if resources is not None:
             self.fields["front_image"].widget.choices = resources
             self.fields["back_image"].widget.choices = resources
 

@@ -708,3 +708,18 @@ class TokensTest(TestCase):
         self.assertEqual(token.name, responseJson["tokens"][0]["name"])
         self.assertEqual(0, len(responseJson["bases"]))
         self.assertEqual(response.status_code, 200)
+
+    def test_token_management_page_with_no_resources(self):
+        self.client.login(username="owner", password="owner")
+        army_without_resources = Army.objects.create(name="test2", owner=self.owner)
+        response = self.client.get(f"/armies/{army_without_resources.pk}/tokens/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Missing resources info")
+
+    def test_token_management_page_with_resources_dont_contain_missing_resources_info(
+        self,
+    ):
+        self.client.login(username="owner", password="owner")
+        response = self.client.get(f"/armies/{self.army.pk}/tokens/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Missing resources info")
