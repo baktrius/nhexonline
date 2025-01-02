@@ -105,6 +105,13 @@ class ResourceUploading(TestCase):
         self.assertLess(num_of_resources, num_of_imgs)
         self.assertGreater(num_of_resources, 0)
 
+    def test_resource_listing(self):
+        self.client.login(username="user", password="user")
+        self.upload_small_img()
+        response = self.client.get(f"/armies/{self.army.pk}/resources/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "img1")
+
 
 @override_settings(MEDIA_ROOT=(TEST_DIR + "/media"))
 class CorruptedResource(TestCase):
