@@ -175,3 +175,6 @@ TSS_WS_URL = "ws://localhost:3001"
 # Main server URL from perspective of app users (to be used for constructing copy links)
 # This configuration can be omitted and then copy link will be constructed based on requests
 # MAIN_SERVER_URL = "http://localhost:8000"
+
+MiB = 1024 * 1024
+DEFAULT_DISK_QUOTA_SIZE = 10 * MiB

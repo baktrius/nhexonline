@@ -13,6 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from nanoid import generate
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from .human_readable_size import human_readable_size
 
 
 class NanoIdField(models.CharField):
@@ -357,16 +358,30 @@ class UserDiskQuota(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="disk_quota"
     )
-    value = models.PositiveIntegerField(default=1024 * 1024 * 10)
+    value = models.PositiveIntegerField(default=settings.DEFAULT_DISK_QUOTA_SIZE)
 
     def get_free_space(self):
-        used_space = sum(
+        return max(self.value - self.used, 0)
+
+    @property
+    def used(self):
+        return sum(
             res.get_size()
             for res in Resource.objects.select_related("army").filter(
                 army__owner=self.user
             )
         )
-        return self.value - used_space
+
+    @property
+    def used_str(self):
+        return human_readable_size(self.used)
+
+    @property
+    def quota_value_str(self):
+        return human_readable_size(self.value)
+
+    def __str__(self):
+        return f"{self.user.username} disk quota"
 
 
 class Board(models.Model):
