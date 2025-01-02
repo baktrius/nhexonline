@@ -1,6 +1,8 @@
 from typing import Any
 from django import forms
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from .human_readable_size import human_readable_size
 
 from .models import (
     Board,
@@ -37,13 +39,13 @@ class AddResourcesForm(forms.Form):
     file_field = MultipleFileField()
 
     def __init__(self, *args, **kwargs):
-        self.free_space = kwargs.pop("free_space", 1024 * 1024 * 10)
+        self.free_space = kwargs.pop("free_space", settings.DEFAULT_DISK_QUOTA_SIZE)
         super().__init__(*args, **kwargs)
 
     def clean_file_field(self):
         files = self.cleaned_data["file_field"]
         for file in files:
-            if file.size > 1024 * 1024:
+            if file.size > settings.MAX_RESOURCE_FILE_SIZE:
                 raise forms.ValidationError("File is too large.")
         return files
 
@@ -52,11 +54,13 @@ class AddResourcesForm(forms.Form):
         if "file_field" not in cleaned_data:
             return cleaned_data
         size_of_uploaded_files = sum(f.size for f in cleaned_data["file_field"])
-        if size_of_uploaded_files > 1024 * 1024 * 10:
-            raise forms.ValidationError("Total size of files is too large.")
+        if size_of_uploaded_files > settings.MAX_SIZE_OF_SINGLE_UPLOAD:
+            raise forms.ValidationError(
+                f"Total size of files is too large. You can upload at most {human_readable_size(settings.MAX_SIZE_OF_SINGLE_UPLOAD)} at once."
+            )
         if (diff := size_of_uploaded_files - self.free_space) > 0:
             raise forms.ValidationError(
-                f"Selected files exceeds user storage quota by {diff / 1024} KB."
+                f"Selected files exceeds user storage quota by {human_readable_size(diff)}."
             )
         return cleaned_data
 

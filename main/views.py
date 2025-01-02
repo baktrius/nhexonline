@@ -421,15 +421,18 @@ def resources(request, army):
     form = prep_form(
         request,
         AddResourcesForm,
-        request.FILES,
+        request.FILES if request.method == "POST" else None,
         free_space=request.user.disk_quota.get_free_space(),
     )
     context = {"form": form}
     add_resource_context(army.pk, context)
-    if request.method == "GET" or not form.is_valid():
+    if request.method == "GET":
         # initial form rendering
-        # or rerendering in case of invalid data
         return render(request, "main/resources2.html", context=context)
+    template_name = "main/addResForm.html" if request.htmx else "main/resources2.html"
+    if not form.is_valid():
+        # rerendering in case of invalid data
+        return render(request, template_name, context=context)
     # successful form handling
     files = form.cleaned_data["file_field"]
     new_resources = [
@@ -440,7 +443,7 @@ def resources(request, army):
     if not request.htmx:
         return HttpResponseRedirect(request.path)
     context["add_res"] = new_resources
-    response = render(request, "main/addResForm.html", context=context)
+    response = render(request, template_name, context=context)
     return trigger_client_event(
         response, "add_res", {"els": resources_to_json(new_resources)}
     )
