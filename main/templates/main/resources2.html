@@ -31,6 +31,7 @@
 	  },
 	}"
   @add_res.window="resources = resources.concat($event.detail.els)"
+  hx-history="false"
 >
   <div class="flex gap-4 p-2 flex-wrap border-gray-500 border-2 border-dashed rounded">
     <template x-for="(resource, index) in resources" :key="resource.id">
