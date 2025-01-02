@@ -28,7 +28,7 @@
   "dependencies": {
     "@alpinejs/focus": "^3.13.7",
     "alpinejs": "^3.13.7",
-    "htmx.org": "^1.9.11",
+    "htmx.org": "^2.0.4",
     "nhex-table-client": "file:table-client",
     "nhex-tss": "file:tss",
     "tippy.js": "^6.3.7"
