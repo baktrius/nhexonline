@@ -25,6 +25,18 @@ class NanoIdField(models.CharField):
         super().__init__(*args, **kwargs)
 
 
+class TableVisit(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    table = models.ForeignKey("Table", on_delete=models.CASCADE)
+    visited_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s visit"
+
+    class Meta:
+        ordering = ["-visited_at"]
+
+
 class Table(models.Model):
     id = NanoIdField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100)
@@ -32,6 +44,13 @@ class Table(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
     board = models.ForeignKey("Board", on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    visits = models.ManyToManyField(
+        to=settings.AUTH_USER_MODEL,
+        through=TableVisit,
+        related_name="visited_tables",
+    )
 
     def __str__(self):
         return self.name
@@ -56,6 +75,13 @@ class Table(models.Model):
 
     def get_chairs_with_link_invitation(self):
         return self.chair_set.filter(link_invitation__isnull=False)
+
+    def register_visit(self, user):
+        if user.is_authenticated:
+            TableVisit.objects.create(user=user, table=self)
+
+    class Meta:
+        ordering = ["created_at"]
 
 
 class ChairManager(models.Manager):

@@ -473,6 +473,7 @@ class ResModal(UpdateView):
 @only_GET
 @obj_view(Table)
 def play(request, table):
+    table.register_visit(request.user)
     return render(
         request, "main/play.html", {"table": table, "roleRequest": {"role": "owner"}}
     )
@@ -613,6 +614,7 @@ def link_invitation(request, pk):
 @only_GET
 def link_invitation_play(request, pk):
     chair = get_object_or_404(Chair.objects.select_related("table"), link_invitation=pk)
+    chair.table.register_visit(request.user)
     return render(
         request,
         "main/play.html",
@@ -629,6 +631,7 @@ def named_invitation(request, invitation):
 @only_GET
 @obj_view(NamedInvitation.objects.select_related("chair__table"))
 def named_invitation_play(request, invitation):
+    invitation.chair.table.register_visit(request.user)
     return render(
         request,
         "main/play.html",

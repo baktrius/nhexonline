@@ -1,0 +1,126 @@
+{% comment %} Derived from admin/edit_inline/tabular.html {% endcomment %}
+{% load i18n admin_urls static admin_modify %}
+<div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group"
+     data-inline-type="tabular"
+     data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
+  <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
+{{ inline_admin_formset.formset.management_form }}
+<fieldset class="module {{ inline_admin_formset.classes }}">
+   {% if inline_admin_formset.formset.max_num == 1 %}
+     <h2>{{ inline_admin_formset.opts.verbose_name|capfirst }}</h2>
+   {% else %}
+     <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+   {% endif %}
+   {{ inline_admin_formset.formset.non_form_errors }}
+   <table>
+     <thead><tr>
+       <th class="original"></th>
+     {% for field in inline_admin_formset.fields %}
+       <th class="column-{{ field.name }}{% if field.required %} required{% endif %}{% if field.widget.is_hidden %} hidden{% endif %}">{{ field.label|capfirst }}
+       {% if field.help_text %}<img src="{% static "admin/img/icon-unknown.svg" %}" class="help help-tooltip" width="10" height="10" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}">{% endif %}
+       </th>
+     {% endfor %}
+     {% if inline_admin_formset.formset.can_delete and inline_admin_formset.has_delete_permission %}<th>{% translate "Delete?" %}</th>{% endif %}
+     </tr></thead>
+
+     <tbody>
+     {% for inline_admin_form in inline_admin_formset %}
+        {% if inline_admin_form.form.non_field_errors %}
+        <tr class="row-form-errors"><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
+        {% endif %}
+        <tr class="form-row {% if forloop.last and inline_admin_formset.has_add_permission %} empty-form{% endif %}"
+             id="{{ inline_admin_formset.formset.prefix }}-{% if forloop.last and inline_admin_formset.has_add_permission %}empty{% else %}{{ forloop.counter0 }}{% endif %}">
+        <td></td>
+             {% for fieldset in inline_admin_form %}
+          {% for line in fieldset %}
+            {% for field in line %}
+              <td class="{% if field.field.name %}field-{{ field.field.name }}{% endif %}{% if field.field.is_hidden %} hidden{% endif %}">
+              {% if field.is_readonly %}
+                  <p>{{ field.contents }}</p>
+              {% else %}
+                  {{ field.field.errors.as_ul }}
+                  {{ field.field }}
+              {% endif %}
+              </td>
+            {% endfor %}
+          {% endfor %}
+        {% endfor %}
+        {% if inline_admin_formset.formset.can_delete and inline_admin_formset.has_delete_permission %}
+          <td class="delete" style="display: flex"></td>
+        {% endif %}
+        </tr>
+     {% endfor %}
+     </tbody>
+   </table>
+   <style>
+    .dark {
+      /*background-color: #417690;*/
+      background-color: #FFFFFF;
+      border: none;
+      color: #666;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    .light {
+      background-color: #008CBA;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+
+  </style>
+   <div>
+   {% with inline_admin_formset.formset.page as page_obj %}
+    <p class="paginator">
+      {% if page_obj.previous_page_number > 0 %}
+        <a href="?page={{ page_obj.previous_page_number|add:'-1' }}">{% trans 'previous' %}</a>
+      {% endif %}
+
+      {% if page_obj.number|add:"-5" > 0 %}
+        <a href="?page=0">1</a>
+      {% endif %}
+
+      {% if page_obj.number|add:"-5" > 1 %}
+        <span>&hellip;</span>
+      {% endif %}
+
+      {% for page_num in page_obj.paginator.page_range %}
+        {% if page_obj.number == page_num %}
+          <span class="dark">{{ page_num|add:"-1" }}</span>
+        {% else %}
+          {% if page_num > page_obj.number|add:"-5" and page_num < page_obj.number|add:"5" %}
+            <a class="light" style="color:white" href="?page={{ page_num|add:'-1' }}">{{ page_num|add:"-1" }}</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.number|add:"5" < page_obj.paginator.num_pages %}
+        <span>&hellip;</span>
+      {% endif %}
+
+      {% if page_obj.number|add:"4" < page_obj.paginator.num_pages %}
+        <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+      {% endif %}
+
+      {% if page_obj.next_page_number < page_obj.paginator.num_pages|add:'1' %}
+        <a href="?page={{ page_obj.next_page_number|add:'-1' }}">{% trans 'next' %}</a>
+      {% endif %}
+      <span class='dark'>{{ page_obj.paginator.count }} Queries</span>
+    </p>
+  {% endwith %}
+  </div>
+
+</fieldset>
+  </div>
+</div>
