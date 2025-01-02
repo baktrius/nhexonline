@@ -13,7 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from nanoid import generate
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
-from .human_readable_size import human_readable_size
+from .filesize import naturalsize
 
 
 class NanoIdField(models.CharField):
@@ -374,11 +374,11 @@ class UserDiskQuota(models.Model):
 
     @property
     def used_str(self):
-        return human_readable_size(self.used)
+        return naturalsize(self.used)
 
     @property
     def quota_value_str(self):
-        return human_readable_size(self.value)
+        return naturalsize(self.value)
 
     def __str__(self):
         return f"{self.user.username} disk quota"
