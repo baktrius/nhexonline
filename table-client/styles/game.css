@@ -372,7 +372,7 @@
 }
 
 .spawnerTokensInfo div > svg {
-  width: 40px;
+  width: 45px;
   display: inline-block;
   transition: transform 0.1s;
 }
