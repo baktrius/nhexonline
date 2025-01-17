@@ -422,3 +422,20 @@
 .tippy-box[data-theme~="not-disturbing"] .help p:first-child {
   margin-top: 0px;
 }
+
+.prev-count {
+  width: 18px;
+  display: inline-block;
+  text-align: right
+}
+
+.prev-x {
+  padding: 0px 1px;
+  display: inline-block;
+}
+
+.prev-wrap {
+  padding: 1px;
+  display: flex;
+  align-items: center;
+}

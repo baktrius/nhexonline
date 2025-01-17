@@ -43,12 +43,10 @@ export default class SpawnerObj extends BoxObj {
         for (const token of counts) {
           const [_, army, unit] = token[0].split("/");
           const info = await game.getUnitInfo(army, unit);
-          if (info === undefined) {
-            content += `<div data-res="${token[0]}">${token[1]}x${hexSvg(invalidRes)}</div>`;
-          } else {
-            const { img, imgRect } = info;
-            content += `<div data-res="${token[0]}">${token[1]}x${hexSvg(this.game.resources.getTokenImg(army, img), imgRect)}</div>`;
-          }
+          const svg = info === undefined
+            ? hexSvg(invalidRes)
+            : hexSvg(game.resources.getTokenImg(army, info.img), info.imgRect);
+          content += `<div data-res="${token[0]}" class="prev-wrap"><span class="prev-count">${token[1]}</span><span class="prev-x">&#x2715;</span>${svg}</div>`;
         }
         instance.setContent(`<div class='spawnerTokensInfo'>${content}</div>`);
         this.objEl[0].dataset.hover = "true";
